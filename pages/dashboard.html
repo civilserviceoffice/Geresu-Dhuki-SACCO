@@ -1267,7 +1267,7 @@ function renderStatsShells() {
   const yr  = document.getElementById('stats-year');
   const all = document.getElementById('stats-all');
 
-  /* Network Overview: no "Total Shares" card anymore */
+  /* Network Overview: no "Total Shares" card */
   const netCards = isMember() ? [
     {id:'s-m-savings', lk:'savings',  ic:'fa-piggy-bank', c:'green'},
     {id:'s-m-shares',  lk:'shares',   ic:'fa-chart-pie',  c:'violet'},
@@ -1282,7 +1282,7 @@ function renderStatsShells() {
     chips: !!c.chips, chipMax: c.chipMax || 3
   })).join('');
 
-  /* Finance — Year: Share Value card split into count + amount */
+  /* Finance — Year: Share Value card shows count + amount */
   let yrCards = [
     {id:'s-grossSav',    lk:'grossSavingsYear', ic:'fa-piggy-bank',   c:'green', chips:true, chipMax:3},
     {id:'s-withdraw',    lk:'withdrawalsYear',  ic:'fa-arrow-up',     c:'red',   chips:true, chipMax:3},
@@ -1316,14 +1316,15 @@ function renderStatsShells() {
     const titleAll = document.getElementById('title-all');
     if (titleAll) titleAll.style.display = 'none';
   } else {
+    /* All-Years Net Share Value: main = net value, left = share count, right = gross buy amount */
     const allCards = [
       {id:'s-netProfitAll', lk:'netProfitAllYears',    ic:'fa-chart-line', c:'purple'},
       {id:'s-balanceAll',   lk:'totalBalanceAllYears', ic:'fa-layer-group',c:'indigo', chips:true, chipMax:3},
       {id:'s-divPaid',      lk:'dividendsPaid',        ic:'fa-gift',       c:'gold'},
       {id:'s-netShareVal',  lk:'netShareValue',        ic:'fa-chart-pie',  c:'teal',
         split:[
-          {id:'s-netShare-buy', label:t('shareAmount'),  cls:'stat__split-value--neutral'},
-          {id:'s-netShare-net', label:t('netAmountETB'), cls:'stat__split-value--pos'}
+          {id:'s-netShare-count', label:t('sharesCountWord'), cls:'stat__split-value--neutral'},
+          {id:'s-netShare-buy',   label:t('shareAmount'),     cls:'stat__split-value--pos'}
         ]}
     ];
     all.innerHTML = allCards.map(c => statCard(c.id, c.lk, c.c, c.ic, {
@@ -1610,12 +1611,12 @@ function renderStatsValues() {
   }
 
   if (!isMember()) {
-    setStat('s-netProfitAll', moneyFull(A.netProfitAll));
-    setStat('s-balanceAll',   moneyFull(A.totalBalanceAll));
-    setStat('s-divPaid',      moneyFull(Y.totalDividends));
-    setStat('s-netShareVal',  moneyFull(A.netShareValueAll));
-    setStat('s-netShare-buy', moneyFull(A.shareBuyAll));
-    setStat('s-netShare-net', moneyFull(A.netShareValueAll));
+    setStat('s-netProfitAll',   moneyFull(A.netProfitAll));
+    setStat('s-balanceAll',     moneyFull(A.totalBalanceAll));
+    setStat('s-divPaid',        moneyFull(Y.totalDividends));
+    setStat('s-netShareVal',    moneyFull(A.netShareValueAll));
+    setStat('s-netShare-count', fmtCount(A.shareCountAll));
+    setStat('s-netShare-buy',   moneyFull(A.shareBuyAll));
   }
   fillDistrictChips();
 }
