@@ -1,1006 +1,599 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GERESU DHUKI SACCO – Secure Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geresu Dhuki SACCO — Sign In</title>
+<link rel="icon" type="image/png" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app":       "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js",
+    "firebase/auth":      "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"
+  }
+}
+</script>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root{
+  --primary:#0f6b4a;--primary-dark:#0a4f36;--accent:#f0c96a;--gold:#c9962b;--gold-soft:#fbf2dd;
+  --text:#172033;--text-soft:#344054;--muted:#6b7280;--muted-light:#98a2b3;
+  --border:#e5e7eb;--border-soft:#eef1f5;--danger:#c43838;--danger-soft:#fdecec;--bg:#f4f7fb;
+}
+html,body{height:100%;}
+body{
+  min-height:100vh;font-family:"Inter","Noto Sans Ethiopic",sans-serif;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(15,107,74,.14), transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(201,150,43,.14), transparent 30%),
+    var(--bg);
+  color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+body.ethiopic{font-family:"Noto Sans Ethiopic","Inter",sans-serif;}
+.background-shape{position:fixed;border-radius:50%;filter:blur(2px);pointer-events:none;z-index:0;}
+.shape-one{width:360px;height:360px;background:rgba(15,107,74,.10);top:-120px;left:-120px;}
+.shape-two{width:300px;height:300px;background:rgba(201,150,43,.10);bottom:-100px;right:-80px;}
+.page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;}
 
-    <style>
-        /* ============================================================
-           ROOT VARIABLES
-           ============================================================ */
-        :root {
-            --primary: #1a6e3a;
-            --primary-dark: #0f4f28;
-            --primary-light: #2e8b4a;
-            --gold: #d4a845;
-            --gold-light: #f0d68a;
-            --gold-dark: #b8922f;
-            --glass-bg: rgba(255, 255, 255, 0.12);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-shadow: rgba(0, 0, 0, 0.25);
-            --text-white: #ffffff;
-            --text-light: rgba(255, 255, 255, 0.85);
-            --text-muted: rgba(255, 255, 255, 0.55);
-            --radius: 24px;
-            --radius-sm: 14px;
-            --transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
+.login-container{width:min(1120px,100%);min-height:690px;display:grid;grid-template-columns:1.05fr .95fr;
+  background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.8);border-radius:30px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(20,40,70,.15),0 10px 30px rgba(20,40,70,.06);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+.welcome-panel{position:relative;padding:55px;display:flex;flex-direction:column;justify-content:space-between;
+  overflow:hidden;color:#fff;background:linear-gradient(145deg,#0a4f36 0%,#0f6b4a 55%,#148a5c 100%);}
+.welcome-panel::before{content:"";position:absolute;width:450px;height:450px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.13);right:-220px;top:-150px;}
+.welcome-panel::after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;
+  border:1px solid rgba(240,201,106,.16);left:-170px;bottom:-150px;}
+.panel-content,.panel-footer{position:relative;z-index:2;}
+.brand{display:flex;align-items:center;gap:18px;}
+.brand-logo{width:76px;height:76px;padding:6px;border-radius:20px;background:rgba(255,255,255,.97);
+  box-shadow:0 12px 30px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-logo img,.brand-logo svg{width:100%;height:100%;object-fit:contain;border-radius:14px;display:block;}
+.brand-text h2{font-size:20px;font-weight:800;letter-spacing:-.3px;}
+.brand-text p{margin-top:5px;font-size:12px;opacity:.78;line-height:1.5;}
+.welcome-content{margin-top:95px;max-width:520px;}
+.welcome-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:999px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:600;margin-bottom:24px;}
+.status-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 12px var(--accent);}
+.welcome-content h1{font-size:clamp(38px,4vw,56px);line-height:1.08;letter-spacing:-2px;font-weight:800;}
+.welcome-content h1 span{display:block;color:#f5e3ac;}
+.welcome-content p{margin-top:24px;max-width:470px;color:rgba(255,255,255,.80);line-height:1.8;font-size:15px;}
+.features{margin-top:35px;display:flex;flex-wrap:wrap;gap:10px;}
+.feature{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:12px;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);font-size:12px;color:rgba(255,255,255,.9);}
+.feature-icon{font-size:14px;}
+.panel-footer{font-size:11px;color:rgba(255,255,255,.62);line-height:1.7;}
+.panel-footer strong{color:rgba(255,255,255,.9);font-weight:700;}
 
-        /* ============================================================
-           RESET & BASE
-           ============================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0a0f0c;
-            overflow: hidden;
-            position: relative;
-        }
+.login-panel{padding:55px 60px;display:flex;flex-direction:column;justify-content:center;background:#fff;}
+.login-header{margin-bottom:30px;}
+.login-header h2{font-size:31px;font-weight:800;letter-spacing:-1px;color:#162033;}
+.login-header p{margin-top:9px;font-size:14px;color:var(--muted);line-height:1.6;}
+.language-switcher{display:flex;gap:7px;margin-bottom:24px;}
+.language-btn{border:1px solid var(--border);background:#f8fafc;color:#667085;padding:7px 13px;
+  border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.language-btn:hover{border-color:#b9c7d9;}
+.language-btn.active{background:#e6f4ee;color:var(--primary);border-color:#b8d9cb;}
 
-        /* ============================================================
-           ANIMATED BACKGROUND
-           ============================================================ */
-        .bg-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
+.form-group{margin-bottom:20px;}
+.form-label{display:block;margin-bottom:9px;font-size:13px;font-weight:700;color:var(--text-soft);}
+.input-wrapper{position:relative;}
+.input-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted-light);font-size:17px;pointer-events:none;}
+.form-input{width:100%;height:54px;padding:0 48px;border:1px solid #d9dee7;border-radius:13px;outline:none;
+  font-family:inherit;font-size:14px;color:var(--text);background:#fbfcfe;transition:all .2s;}
+.form-input:focus{background:#fff;border-color:#70c9a2;box-shadow:0 0 0 4px rgba(15,107,74,.10);}
+.form-input::placeholder{color:#a5adba;}
+.form-input[aria-invalid="true"]{border-color:#f0a5ab;box-shadow:0 0 0 4px rgba(196,56,56,.06);}
+.password-toggle{position:absolute;right:15px;top:50%;transform:translateY(-50%);border:none;background:none;
+  cursor:pointer;color:var(--muted-light);font-size:17px;padding:4px;border-radius:6px;transition:background .15s;}
+.password-toggle:hover{background:#f0f4f9;color:var(--text-soft);}
+.form-options{display:flex;align-items:center;justify-content:space-between;margin:3px 0 24px;gap:15px;}
+.remember{display:flex;align-items:center;gap:8px;font-size:12px;color:#667085;cursor:pointer;user-select:none;opacity:.7;}
+.forgot{border:none;background:none;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.forgot:hover{text-decoration:underline;}
 
-        .bg-container .bg-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.35) saturate(1.1);
-            transform: scale(1.02);
-            transition: transform 12s ease;
-            animation: slowZoom 20s ease-in-out infinite alternate;
-        }
+.login-button{width:100%;height:55px;border:none;border-radius:13px;
+  background:linear-gradient(135deg,#0f6b4a,#148a5c);color:#fff;font-family:inherit;
+  font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 12px 24px rgba(15,107,74,.22);
+  transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px;}
+.login-button:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(15,107,74,.28);}
+.login-button:active{transform:translateY(0);}
+.login-button:disabled{opacity:.75;cursor:wait;transform:none;}
+.btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:50%;animation:spin .65s linear infinite;display:none;}
+.login-button.loading .btn-spinner{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-        @keyframes slowZoom {
-            0% {
-                transform: scale(1.02) rotate(0deg);
-            }
-            100% {
-                transform: scale(1.12) rotate(0.5deg);
-            }
-        }
+.message{display:none;margin-top:16px;padding:12px 14px;border-radius:10px;font-size:12px;line-height:1.5;
+  animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.message.error{display:block;color:#b42318;background:var(--danger-soft);border:1px solid #f3c5c5;}
+.message.success{display:block;color:#067647;background:#e2f5ec;border:1px solid #a8e3c5;}
+.message.info{display:block;color:var(--primary);background:#e6f4ee;border:1px solid #b8d9cb;}
 
-        .bg-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(26, 110, 58, 0.5) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 50%, rgba(212, 168, 69, 0.2) 0%, transparent 50%),
-                linear-gradient(180deg, rgba(10, 15, 12, 0.7) 0%, rgba(10, 15, 12, 0.3) 50%, rgba(10, 15, 12, 0.7) 100%);
-            z-index: 1;
-        }
+.security-note{display:flex;align-items:center;gap:8px;margin-top:22px;color:var(--muted-light);font-size:11px;line-height:1.5;}
+.security-icon{font-size:15px;}
 
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.35;
-            z-index: 1;
-            animation: floatOrb 16s ease-in-out infinite alternate;
-        }
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            top: -100px;
-            right: -100px;
-            background: radial-gradient(circle, rgba(212, 168, 69, 0.35), transparent 70%);
-            animation-delay: 0s;
-        }
-        .orb-2 {
-            width: 350px;
-            height: 350px;
-            bottom: -80px;
-            left: -80px;
-            background: radial-gradient(circle, rgba(26, 110, 58, 0.4), transparent 70%);
-            animation-delay: -5s;
-        }
-        .orb-3 {
-            width: 200px;
-            height: 200px;
-            top: 40%;
-            left: 60%;
-            background: radial-gradient(circle, rgba(212, 168, 69, 0.2), transparent 70%);
-            animation-delay: -10s;
-        }
-
-        @keyframes floatOrb {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            33% {
-                transform: translate(30px, -20px) scale(1.05);
-            }
-            66% {
-                transform: translate(-20px, 30px) scale(0.95);
-            }
-            100% {
-                transform: translate(10px, -10px) scale(1.02);
-            }
-        }
-
-        /* ============================================================
-           LOGIN WRAPPER
-           ============================================================ */
-        .login-wrapper {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            max-width: 480px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .login-card {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(24px) saturate(1.4);
-            -webkit-backdrop-filter: blur(24px) saturate(1.4);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: var(--radius);
-            padding: 42px 36px 36px;
-            box-shadow:
-                0 40px 100px rgba(0, 0, 0, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            animation: cardEntry 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            transform: translateY(30px);
-            opacity: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.04), transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes cardEntry {
-            0% {
-                opacity: 0;
-                transform: translateY(40px) scale(0.96);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .login-lang {
-            display: flex;
-            justify-content: flex-end;
-            gap: 6px;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        .login-lang .lang-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 5px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: var(--transition);
-            letter-spacing: 0.3px;
-            backdrop-filter: blur(4px);
-        }
-        .login-lang .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: var(--text-white);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        .login-lang .lang-btn.active {
-            background: var(--gold);
-            color: #0a0f0c;
-            border-color: var(--gold);
-            box-shadow: 0 4px 16px rgba(212, 168, 69, 0.3);
-        }
-
-        .login-brand {
-            text-align: center;
-            margin-bottom: 32px;
-            position: relative;
-            z-index: 1;
-        }
-        .brand-icon-wrap {
-            display: inline-block;
-            position: relative;
-            margin-bottom: 14px;
-        }
-        .brand-icon-wrap .ring {
-            position: absolute;
-            inset: -6px;
-            border-radius: 50%;
-            border: 2px solid rgba(212, 168, 69, 0.25);
-            animation: pulseRing 3s ease-in-out infinite;
-        }
-        .brand-icon-wrap .ring:nth-child(2) {
-            inset: -12px;
-            animation-delay: 0.6s;
-            border-color: rgba(212, 168, 69, 0.12);
-        }
-        @keyframes pulseRing {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 0.5;
-            }
-            50% {
-                transform: scale(1.08);
-                opacity: 0;
-            }
-        }
-        .brand-icon {
-            width: 76px;
-            height: 76px;
-            background: linear-gradient(135deg, rgba(26, 110, 58, 0.5), rgba(212, 168, 69, 0.2));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(8px);
-            position: relative;
-            z-index: 1;
-            margin: 0 auto;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        .brand-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-            border-radius: 50%;
-        }
-        .login-brand h1 {
-            font-size: 30px;
-            font-weight: 800;
-            color: var(--text-white);
-            letter-spacing: -0.5px;
-            margin-bottom: 2px;
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
-        }
-        .login-brand h1 span {
-            color: var(--gold);
-        }
-        .login-brand p {
-            color: var(--text-muted);
-            font-weight: 400;
-            letter-spacing: 2px;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-
-        form {
-            position: relative;
-            z-index: 1;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            color: var(--text-light);
-            margin-bottom: 6px;
-            font-size: 13px;
-            letter-spacing: 0.3px;
-        }
-        .form-group label i {
-            margin-right: 8px;
-            color: var(--gold);
-            font-size: 13px;
-            opacity: 0.7;
-        }
-        .form-group .input-wrap {
-            position: relative;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: var(--radius-sm);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: var(--transition);
-            overflow: hidden;
-        }
-        .form-group .input-wrap:focus-within {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 4px rgba(212, 168, 69, 0.12), inset 0 0 0 1px rgba(212, 168, 69, 0.1);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .form-group .input-wrap input {
-            width: 100%;
-            padding: 14px 18px;
-            background: transparent;
-            border: none;
-            font-size: 15px;
-            color: var(--text-white);
-            font-weight: 400;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-        }
-        .form-group .input-wrap input::placeholder {
-            color: var(--text-muted);
-            font-weight: 300;
-            font-size: 14px;
-        }
-        .form-group .input-wrap .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 15px;
-            transition: var(--transition);
-            pointer-events: none;
-        }
-        .form-group .input-wrap:focus-within .input-icon {
-            color: var(--gold);
-        }
-        .form-group .input-wrap input {
-            padding-left: 48px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 17px;
-            padding: 6px;
-            transition: var(--transition);
-            border-radius: 8px;
-        }
-        .toggle-password:hover {
-            color: var(--text-white);
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 18px 0 28px;
-            font-size: 14px;
-        }
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-light);
-            cursor: pointer;
-            font-weight: 400;
-            transition: var(--transition);
-        }
-        .remember-me:hover {
-            color: var(--text-white);
-        }
-        .remember-me input[type="checkbox"] {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.04);
-            cursor: pointer;
-            position: relative;
-            transition: var(--transition);
-            flex-shrink: 0;
-        }
-        .remember-me input[type="checkbox"]:checked {
-            background: var(--gold);
-            border-color: var(--gold);
-            box-shadow: 0 2px 12px rgba(212, 168, 69, 0.3);
-        }
-        .remember-me input[type="checkbox"]:checked::after {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 10px;
-            color: #0a0f0c;
-        }
-        .forgot-password {
-            color: var(--text-muted);
-            font-weight: 500;
-            text-decoration: none;
-            transition: var(--transition);
-            font-size: 13px;
-            border-bottom: 1px solid transparent;
-            padding-bottom: 2px;
-        }
-        .forgot-password:hover {
-            color: var(--gold);
-            border-bottom-color: var(--gold);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #0a0f0c;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 16px;
-            font-weight: 700;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 24px rgba(212, 168, 69, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-            transition: 0.6s;
-        }
-        .login-btn:hover::before {
-            left: 100%;
-        }
-        .login-btn:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 8px 36px rgba(212, 168, 69, 0.35);
-        }
-        .login-btn:active {
-            transform: scale(0.98);
-        }
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: 0 4px 16px rgba(212, 168, 69, 0.15);
-        }
-        .login-btn i {
-            font-size: 18px;
-        }
-
-        .login-footer {
-            margin-top: 28px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            padding-top: 20px;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        .login-footer .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 8px;
-        }
-        .login-footer .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 12px;
-            transition: var(--transition);
-        }
-        .login-footer .footer-links a:hover {
-            color: var(--gold);
-        }
-        .login-footer p {
-            opacity: 0.6;
-        }
-
-        .toast-container {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 420px;
-            width: 100%;
-        }
-        .toast {
-            padding: 16px 22px;
-            border-radius: var(--radius-sm);
-            color: #fff;
-            font-weight: 500;
-            font-size: 14px;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
-            animation: slideInRight 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .toast i {
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-        .toast.error {
-            background: rgba(231, 76, 60, 0.92);
-        }
-        .toast.success {
-            background: rgba(26, 110, 58, 0.92);
-        }
-        .toast.warning {
-            background: rgba(212, 168, 69, 0.92);
-            color: #0a0f0c;
-        }
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(60px) scale(0.96);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
-        }
-        .toast.fade-out {
-            opacity: 0;
-            transform: translateX(40px) scale(0.96);
-            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        @media (max-width: 520px) {
-            .login-card {
-                padding: 30px 22px 28px;
-                border-radius: 20px;
-            }
-            .login-brand h1 {
-                font-size: 26px;
-            }
-            .brand-icon {
-                width: 64px;
-                height: 64px;
-            }
-            .brand-icon img {
-                padding: 8px;
-            }
-            .form-group .input-wrap input {
-                font-size: 14px;
-                padding: 12px 16px 12px 44px;
-            }
-            .form-options {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            .login-btn {
-                padding: 14px;
-                font-size: 15px;
-            }
-            .toast-container {
-                top: 16px;
-                right: 16px;
-                left: 16px;
-                max-width: 100%;
-            }
-            .toast {
-                padding: 14px 18px;
-                font-size: 13px;
-            }
-            .login-lang .lang-btn {
-                padding: 4px 12px;
-                font-size: 11px;
-            }
-        }
-        @media (max-width: 400px) {
-            .login-card {
-                padding: 24px 16px 22px;
-            }
-            .login-brand h1 {
-                font-size: 22px;
-            }
-            .form-group .input-wrap input {
-                font-size: 13px;
-                padding: 11px 14px 11px 40px;
-            }
-            .form-group .input-wrap .input-icon {
-                left: 12px;
-                font-size: 13px;
-            }
-            .brand-icon {
-                width: 56px;
-                height: 56px;
-            }
-            .brand-icon img {
-                padding: 6px;
-            }
-        }
-
-        .fa-spinner {
-            animation: spin 0.9s linear infinite;
-        }
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        ::-webkit-scrollbar {
-            width: 0;
-            background: transparent;
-        }
-    </style>
+@media (max-width:900px){
+  .login-container{grid-template-columns:1fr;min-height:auto;}
+  .welcome-panel{min-height:400px;padding:35px;}
+  .welcome-content{margin-top:50px;}
+  .welcome-content h1{font-size:38px;letter-spacing:-1.4px;}
+  .login-panel{padding:45px 35px;}
+}
+@media (max-width:600px){
+  .page{padding:14px;}
+  .login-container{border-radius:22px;}
+  .welcome-panel{padding:28px 24px;min-height:360px;}
+  .brand-logo{width:60px;height:60px;border-radius:16px;}
+  .brand-text h2{font-size:17px;}
+  .welcome-content{margin-top:40px;}
+  .welcome-content h1{font-size:32px;letter-spacing:-1.2px;}
+  .welcome-content p{font-size:13px;margin-top:16px;}
+  .features{margin-top:22px;}
+  .login-panel{padding:35px 24px;}
+  .login-header h2{font-size:26px;}
+}
+</style>
 </head>
 <body>
 
-    <!-- ============================================================
-    BACKGROUND
-    ============================================================ -->
-    <div class="bg-container">
-        <img class="bg-image" src="images/sacco-bg.jpg" alt="SACCO background" />
-        <div class="bg-overlay"></div>
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
+<div class="background-shape shape-one"></div>
+<div class="background-shape shape-two"></div>
+<main class="page" id="page"></main>
 
-    <!-- ============================================================
-    LOGIN CARD
-    ============================================================ -->
-    <div class="login-wrapper">
-        <div class="login-card">
+<script type="module">
+import { initializeApp } from "firebase/app";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, setPersistence,
+  browserSessionPersistence, sendPasswordResetEmail
+} from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
-            <!-- Language Toggle -->
-            <div class="login-lang">
-                <button class="lang-btn active" data-lang="en">EN</button>
-                <button class="lang-btn" data-lang="am">አማ</button>
-                <button class="lang-btn" data-lang="om">OM</button>
+/* ============ FIREBASE ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBeQv8YLNfFFaTEZ6pxXaAy_K8n3u8V5X4",
+  authDomain: "geresu-dhuki-sacco-75329.firebaseapp.com",
+  projectId: "geresu-dhuki-sacco-75329",
+  storageBucket: "geresu-dhuki-sacco-75329.firebasestorage.app",
+  messagingSenderId: "431325504753",
+  appId: "1:431325504753:web:f7289fb88d74b82eb0b550"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ============ SESSION (sessionStorage — dies when browser closes) ============ */
+const SESSION_KEY = "sacco.session";
+const DEFAULT_SESSION_MINUTES = 30;
+
+function readSession(){
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (!s || !s.uid || !s.expiresAt) return null;
+    return s;
+  } catch(e){ return null; }
+}
+function writeSession(uid, minutes){
+  const now = Date.now();
+  const ms = Math.max(1, Number(minutes) || DEFAULT_SESSION_MINUTES) * 60 * 1000;
+  const s = { uid, issuedAt: now, expiresAt: now + ms, minutes: ms / 60000 };
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch(e){}
+  return s;
+}
+function clearSession(){ try { sessionStorage.removeItem(SESSION_KEY); } catch(e){} }
+function isSessionValid(s){ return !!(s && s.uid && s.expiresAt > Date.now()); }
+
+/* ============ LOGO ============ */
+const LOGO_FALLBACK = `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="100" height="100" rx="22" fill="#0f6b4a"/>
+    <circle cx="50" cy="47" r="25" fill="none" stroke="#f0c96a" stroke-width="3.5"/>
+    <text x="50" y="59" font-family="Georgia,serif" font-size="30" font-weight="900"
+          fill="#f0c96a" text-anchor="middle">G</text>
+  </svg>`;
+const LOGO_HTML = `
+  <img src="images/logo.png" alt="Geresu Dhuki SACCO logo"
+       onerror="this.onerror=null; this.outerHTML=this.dataset.fallback;"
+       data-fallback="${LOGO_FALLBACK.replace(/"/g,'&quot;')}">
+`;
+
+/* ============ i18n ============ */
+const translations = {
+  en: {
+    brandTitle:"Geresu Dhuki SACCO", brandSubtitle:"Savings & Credit Cooperative",
+    secureSystem:"Secure Cooperative System", welcome:"Welcome to", systemName:"Geresu Dhuki",
+    description:"A modern digital platform to manage members, savings, shares, loans, branches and reports — efficiently, transparently and securely.",
+    secure:"Secure", efficient:"Efficient", analytics:"Analytics", multilingual:"Multilingual",
+    footer:"Geresu Dhuki SACCO · Savings & Credit Management",
+    loginTitle:"Sign in", loginSubtitle:"Enter your credentials to access your account.",
+    username:"Email or Username", usernamePlaceholder:"Enter your email or username",
+    password:"Password", passwordPlaceholder:"Enter your password",
+    remember:"Keep me signed in", forgot:"Forgot password?",
+    login:"Sign In", security:"Your account is protected by secure authentication.",
+    loggingIn:"Signing in…", resolving:"Looking up account…",
+    required:"Please enter your email/username and password.",
+    invalid:"Invalid email/username or password.",
+    notFound:"Account not found. Check your email or username.",
+    networkError:"Network error. Check your connection.",
+    tooMany:"Too many attempts. Please wait a moment.",
+    success:"Login successful. Redirecting…",
+    resetSent:"Password reset link sent. Check your email.",
+    resetNeedsEmail:"Enter your email first, then tap “Forgot password”.",
+    resetFail:"Could not send reset email. Check the address and try again.",
+    sessionExpired:"Your session expired. Please sign in again."
+  },
+  am: {
+    brandTitle:"የገረሱ ዱኪ ሳኮ", brandSubtitle:"የቁጠባና ብድር ማኅበር",
+    secureSystem:"የተጠበቀ የማኅበር ስርዓት", welcome:"እንኳን ወደ", systemName:"ገረሱ ዱኪ በደህና መጡ",
+    description:"አባላትን፣ ቁጠባን፣ አክሲዮንን፣ ብድርን፣ ቅርንጫፎችን እና ሪፖርቶችን በቀላሉ፣ በግልጽና በደህና ለማስተዳደር የተዘጋጀ ዘመናዊ ዲጂታል መድረክ።",
+    secure:"የተጠበቀ", efficient:"ቀልጣፋ", analytics:"ትንታኔ", multilingual:"ብዙ ቋንቋ",
+    footer:"የገረሱ ዱኪ ሳኮ · የቁጠባና ብድር አስተዳደር",
+    loginTitle:"ይግቡ", loginSubtitle:"መለያዎን ለመጠቀም የመግቢያ መረጃዎን ያስገቡ።",
+    username:"ኢሜይል ወይም የተጠቃሚ ስም", usernamePlaceholder:"ኢሜይል ወይም የተጠቃሚ ስም ያስገቡ",
+    password:"የይለፍ ቃል", passwordPlaceholder:"የይለፍ ቃልዎን ያስገቡ",
+    remember:"እንዲገባ አስታውስ", forgot:"የይለፍ ቃል ረሱ?",
+    login:"ግባ", security:"መለያዎ በደህንነት ማረጋገጫ የተጠበቀ ነው።",
+    loggingIn:"በመግባት ላይ…", resolving:"መለያ በመፈለግ ላይ…",
+    required:"እባክዎ ኢሜይል/የተጠቃሚ ስም እና የይለፍ ቃል ያስገቡ።",
+    invalid:"የተሳሳተ ኢሜይል/የተጠቃሚ ስም ወይም የይለፍ ቃል።",
+    notFound:"መለያ አልተገኘም። ኢሜይልዎን ወይም የተጠቃሚ ስምዎን ያረጋግጡ።",
+    networkError:"የአውታረ መረብ ስህተት። ግንኙነትዎን ያረጋግጡ።",
+    tooMany:"ብዙ ሙከራዎች። እባክዎ ቆይተው ይሞክሩ።",
+    success:"በተሳካ ሁኔታ ገብተዋል። በመቀጠል ላይ…",
+    resetSent:"የይለፍ ቃል ማስተካከያ ሊንክ ተልኳል። ኢሜይልዎን ይመልከቱ።",
+    resetNeedsEmail:"መጀመሪያ ኢሜይልዎን ያስገቡ፣ ከዚያ “የይለፍ ቃል ረሱ?” ይጫኑ።",
+    resetFail:"ማስተካከያ ኢሜይል መላክ አልተቻለም። አድራሻውን ያረጋግጡ።",
+    sessionExpired:"ክፍለ ጊዜዎ አልቋል። እባክዎ እንደገና ይግቡ።"
+  },
+  om: {
+    brandTitle:"Geresu Dhuki SACCO", brandSubtitle:"Waldaa Qusannaa fi Liqii",
+    secureSystem:"Sirna Waldaa Eegamaa", welcome:"Baga Nagaan Gara", systemName:"Geresu Dhuki Dhuftan",
+    description:"Miseensota, qusannaa, shaaree, liqii, damee fi gabaasa sirna dijitaalaa ammayyaatiin haala salphaa, iftoominaa fi nageenya qabuun bulchuuf qophaa'e.",
+    secure:"Eegamaa", efficient:"Bu'a qabeessa", analytics:"Xiinxala", multilingual:"Afaanota Hedduu",
+    footer:"Geresu Dhuki SACCO · Bulchiinsa Qusannaa fi Liqii",
+    loginTitle:"Seeni", loginSubtitle:"Herrega kee argachuuf odeeffannoo seensaa kee galchi.",
+    username:"Imeelii yookaan Maqaa Fayyadamaa", usernamePlaceholder:"Imeelii yookaan maqaa fayyadamaa galchi",
+    password:"Jecha Darbii", passwordPlaceholder:"Jecha darbii kee galchi",
+    remember:"Na yaadadhu", forgot:"Jecha darbii dagatte?",
+    login:"Seeni", security:"Herregni kee sirna mirkaneessa nageenyaatiin eegamaadha.",
+    loggingIn:"Seenaa jira…", resolving:"Herrega barbaadaa jira…",
+    required:"Maaloo imeelii/maqaa fayyadamaa fi jecha darbii galchi.",
+    invalid:"Imeelii/maqaa fayyadamaa ykn jecha darbii dogoggora.",
+    notFound:"Herregni hin argamne. Imeelii ykn maqaa fayyadamaa kee mirkaneessi.",
+    networkError:"Dogoggora neetwoorkii. Walqunnamtii kee mirkaneessi.",
+    tooMany:"Yaaliin baay'ee. Maaloo xiqqoo eegi.",
+    success:"Milkaa'inaan seenteetta. Ce'aa jira…",
+    resetSent:"Liinkii jijjiirraa jecha darbii ergameera. Imeelii kee ilaali.",
+    resetNeedsEmail:"Dura imeelii kee galchi, sana booda “Jecha darbii dagatte?” tuqi.",
+    resetFail:"Imeelii haaromsaa erguu hin danda'amne. Teessoo mirkaneessi.",
+    sessionExpired:"Yeroon kee dhumateera. Maaloo irra deebi'ii seeni."
+  }
+};
+const SUPPORTED = ["en","am","om"];
+const FALLBACK = "en";
+const LANG_KEY = "sacco.lang";
+let LANG = "en";
+const t = (k) => (translations[LANG] && translations[LANG][k]) || translations[FALLBACK][k] || k;
+function applyLanguage(lang){
+  if (!SUPPORTED.includes(lang)) lang = FALLBACK;
+  LANG = lang;
+  try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
+  document.documentElement.lang = lang;
+  document.body.classList.toggle("ethiopic", lang === "am" || lang === "om");
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const v = translations[lang]?.[el.dataset.i18n];
+    if (typeof v === "string") el.textContent = v;
+  });
+  document.querySelectorAll("[data-placeholder]").forEach(el => {
+    const v = translations[lang]?.[el.dataset.placeholder];
+    if (typeof v === "string") el.placeholder = v;
+  });
+  document.querySelectorAll(".language-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.lang === lang);
+  });
+  const btn = document.getElementById("loginButton");
+  if (btn && !btn.classList.contains("loading")) {
+    btn.querySelector(".btn-label").textContent = t("login");
+  }
+}
+
+/* ============ RESOLVE EMAIL FROM USERNAME OR EMAIL ============ */
+async function resolveEmail(input){
+  const trimmed = String(input || "").trim();
+  if (!trimmed) return { email: "", source: "empty" };
+  if (/^\S+@\S+\.\S+$/.test(trimmed)) return { email: trimmed, source: "email" };
+  // Username lookup in public collection
+  const uname = trimmed.toLowerCase();
+  try {
+    const snap = await getDoc(doc(db, "usernames", uname));
+    if (snap.exists() && snap.data().email) {
+      return { email: snap.data().email, source: "username" };
+    }
+  } catch(e) {
+    console.warn("[username lookup]", e.code, e.message);
+  }
+  return { email: "", source: "notfound" };
+}
+
+/* ============ RENDER ============ */
+function renderLogin(){
+  document.getElementById("page").innerHTML = `
+    <section class="login-container">
+      <div class="welcome-panel">
+        <div class="panel-content">
+          <div class="brand">
+            <div class="brand-logo">${LOGO_HTML}</div>
+            <div class="brand-text">
+              <h2 data-i18n="brandTitle">Geresu Dhuki SACCO</h2>
+              <p data-i18n="brandSubtitle">Savings &amp; Credit Cooperative</p>
             </div>
-
-            <!-- Brand -->
-            <div class="login-brand">
-                <div class="brand-icon-wrap">
-                    <div class="ring"></div>
-                    <div class="ring"></div>
-                    <div class="brand-icon">
-                        <img src="images/sacco-logo.png" alt="GERESU DHUKI SACCO Logo" />
-                    </div>
-                </div>
-                <h1>GERESU DHUKI <span>SACCO</span></h1>
-                <p data-i18n="brandSub">Banking System</p>
+          </div>
+          <div class="welcome-content">
+            <div class="welcome-badge">
+              <span class="status-dot"></span>
+              <span data-i18n="secureSystem">Secure Cooperative System</span>
             </div>
-
-            <!-- Form -->
-            <form id="loginForm" autocomplete="on">
-                <div class="form-group">
-                    <label for="email"><i class="fas fa-envelope"></i> <span data-i18n="emailLabel">Email / Username</span></label>
-                    <div class="input-wrap">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="email" placeholder="Enter your email" required autocomplete="email" />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="password"><i class="fas fa-lock"></i> <span data-i18n="passwordLabel">Password</span></label>
-                    <div class="input-wrap">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password" />
-                        <button type="button" id="togglePassword" class="toggle-password" aria-label="Toggle password visibility">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" checked />
-                        <span data-i18n="rememberMe">Remember me</span>
-                    </label>
-                    <a href="password-recovery.html" class="forgot-password" data-i18n="forgotPassword">Forgot password?</a>
-                </div>
-
-                <button type="submit" class="login-btn" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span data-i18n="signIn">Sign In</span>
-                </button>
-
-                <div class="login-footer">
-                    <div class="footer-links">
-                        <a href="privacy-policy.html">Privacy</a>
-                        <a href="terms-of-service.html">Terms</a>
-                        <a href="support.html">Support</a>
-                    </div>
-                    <p>© 2026 GERESU DHUKI SACCO. All rights reserved. Designed by : Eng. Abdi.F Software</p>
-                </div>
-            </form>
+            <h1><span data-i18n="welcome">Welcome to</span><span data-i18n="systemName">Geresu Dhuki</span></h1>
+            <p data-i18n="description">A modern digital platform to manage members, savings, shares, loans, branches and reports.</p>
+            <div class="features">
+              <div class="feature"><span class="feature-icon">🔐</span><span data-i18n="secure">Secure</span></div>
+              <div class="feature"><span class="feature-icon">⚡</span><span data-i18n="efficient">Efficient</span></div>
+              <div class="feature"><span class="feature-icon">📊</span><span data-i18n="analytics">Analytics</span></div>
+              <div class="feature"><span class="feature-icon">🌐</span><span data-i18n="multilingual">Multilingual</span></div>
+            </div>
+          </div>
         </div>
-    </div>
+        <div class="panel-footer">
+          © ${new Date().getFullYear()} <span data-i18n="footer">Geresu Dhuki SACCO · Savings &amp; Credit Management</span>
+          <br>Designed by : <strong>Abdi Furgasa</strong>
+        </div>
+      </div>
 
+      <div class="login-panel">
+        <div class="login-header">
+          <h2 data-i18n="loginTitle">Sign in</h2>
+          <p data-i18n="loginSubtitle">Enter your credentials to access your account.</p>
+        </div>
 
-    <script>
-        // ============================================================
-        // 1. FIREBASE CONFIG (UPDATED)
-        // ============================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBeQv8YLNfFFaTEZ6pxXaAy_K8n3u8V5X4",
-            authDomain: "geresu-dhuki-sacco-75329.firebaseapp.com",
-            projectId: "geresu-dhuki-sacco-75329",
-            storageBucket: "geresu-dhuki-sacco-75329.firebasestorage.app",
-            messagingSenderId: "431325504753",
-            appId: "1:431325504753:web:f7289fb88d74b82eb0b550",
-            measurementId: "G-3SN99DFJXD"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        <div class="language-switcher">
+          <button type="button" class="language-btn" data-lang="en">EN</button>
+          <button type="button" class="language-btn" data-lang="am">አማ</button>
+          <button type="button" class="language-btn" data-lang="om">OM</button>
+        </div>
 
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .catch(err => console.warn('Persistence error:', err));
+        <form id="loginForm" novalidate autocomplete="on">
+          <div class="form-group">
+            <label class="form-label" for="identity" data-i18n="username">Email or Username</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input id="identity" class="form-input" type="text" autocomplete="username"
+                     autocapitalize="none" autocorrect="off" spellcheck="false"
+                     placeholder="Enter your email or username"
+                     data-placeholder="usernamePlaceholder" required>
+            </div>
+          </div>
 
-        // ============================================================
-        // 2. MULTI-LANGUAGE
-        // ============================================================
-        const translations = {
-            en: {
-                brandSub: 'Banking System',
-                emailLabel: 'Email / Username',
-                passwordLabel: 'Password',
-                rememberMe: 'Remember me',
-                forgotPassword: 'Forgot password?',
-                signIn: 'Sign In',
-                rights: 'All rights reserved.'
-            },
-            am: {
-                brandSub: 'ባንክ ስርዓት',
-                emailLabel: 'ኢሜል / የተጠቃሚ ስም',
-                passwordLabel: 'የይለፍ ቃል',
-                rememberMe: 'አስታውሰኝ',
-                forgotPassword: 'የይለፍ ቃል ረሱ?',
-                signIn: 'ግባ',
-                rights: 'መብቶች በሙሉ ተጠብቀዋል።'
-            },
-            om: {
-                brandSub: 'Sistema Baankii',
-                emailLabel: 'Imeelii / Maqaa Fayyadamaa',
-                passwordLabel: 'Jecha Iccitii',
-                rememberMe: 'Na yaadadhu',
-                forgotPassword: 'Jecha iccitii irranfatte?',
-                signIn: 'Seeni',
-                rights: 'Mirgi hundi eegama.'
-            }
-        };
+          <div class="form-group">
+            <label class="form-label" for="password" data-i18n="password">Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input id="password" class="form-input" type="password"
+                     autocomplete="current-password"
+                     placeholder="Enter your password" data-placeholder="passwordPlaceholder" required>
+              <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">👁</button>
+            </div>
+          </div>
 
-        let currentLang = 'en';
+          <div class="form-options">
+            <label class="remember">
+              <input type="checkbox" id="rememberMe" checked disabled>
+              <span data-i18n="remember">Keep me signed in</span>
+            </label>
+            <button type="button" class="forgot" id="forgotPassword" data-i18n="forgot">Forgot password?</button>
+          </div>
 
-        function setLanguage(lang) {
-            if (!translations[lang]) return;
-            currentLang = lang;
-            const t = translations[lang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key] !== undefined) el.textContent = t[key];
-            });
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-            localStorage.setItem('waciti-lang', lang);
+          <button type="submit" class="login-button" id="loginButton">
+            <span class="btn-spinner"></span>
+            <span class="btn-label" data-i18n="login">Sign In</span>
+          </button>
+
+          <div id="message" class="message"></div>
+
+          <div class="security-note">
+            <span class="security-icon">🛡️</span>
+            <span data-i18n="security">Your account is protected by secure authentication.</span>
+          </div>
+        </form>
+      </div>
+    </section>
+  `;
+  applyLanguage(LANG);
+  bindLogin();
+}
+
+/* ============ BIND ============ */
+function bindLogin(){
+  const form      = document.getElementById("loginForm");
+  const idEl      = document.getElementById("identity");
+  const passEl    = document.getElementById("password");
+  const loginBtn  = document.getElementById("loginButton");
+  const btnLabel  = loginBtn.querySelector(".btn-label");
+  const messageEl = document.getElementById("message");
+  const togglePw  = document.getElementById("togglePassword");
+  const forgotBtn = document.getElementById("forgotPassword");
+
+  const showMessage = (text, type = "error") => {
+    messageEl.textContent = text;
+    messageEl.className = "message " + type;
+  };
+  const clearMessage = () => {
+    messageEl.textContent = "";
+    messageEl.className = "message";
+  };
+  const setLoading = (on, labelKey) => {
+    loginBtn.disabled = on;
+    loginBtn.classList.toggle("loading", on);
+    btnLabel.textContent = on ? t(labelKey || "loggingIn") : t("login");
+  };
+
+  document.querySelectorAll(".language-btn").forEach(b => {
+    b.addEventListener("click", () => applyLanguage(b.dataset.lang));
+  });
+
+  togglePw.addEventListener("click", () => {
+    const showing = passEl.type === "text";
+    passEl.type = showing ? "password" : "text";
+    togglePw.textContent = showing ? "👁" : "🙈";
+  });
+
+  forgotBtn.addEventListener("click", async () => {
+    clearMessage();
+    const input = idEl.value.trim();
+    if (!input) { showMessage(t("resetNeedsEmail"), "info"); idEl.focus(); return; }
+    const r = await resolveEmail(input);
+    if (!r.email) { showMessage(t("notFound"), "error"); return; }
+    try {
+      await sendPasswordResetEmail(auth, r.email);
+      showMessage(t("resetSent"), "success");
+    } catch (err) {
+      console.warn("[forgot]", err.code, err.message);
+      showMessage(t("resetFail"), "error");
+    }
+  });
+
+  const AUTH_ERROR_MAP = {
+    "auth/invalid-email":"invalid","auth/wrong-password":"invalid",
+    "auth/user-not-found":"invalid","auth/invalid-credential":"invalid",
+    "auth/too-many-requests":"tooMany","auth/network-request-failed":"networkError",
+    "auth/user-disabled":"invalid"
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearMessage();
+
+    const input = idEl.value.trim();
+    const password = passEl.value;
+    let bad = false;
+    if (!input)    { idEl.setAttribute("aria-invalid","true"); bad = true; } else { idEl.removeAttribute("aria-invalid"); }
+    if (!password) { passEl.setAttribute("aria-invalid","true"); bad = true; } else { passEl.removeAttribute("aria-invalid"); }
+    if (bad) { showMessage(t("required"), "error"); (!input ? idEl : passEl).focus(); return; }
+
+    // Resolve email if input is a username
+    let emailToUse = input;
+    if (!/^\S+@\S+\.\S+$/.test(input)) {
+      setLoading(true, "resolving");
+      const r = await resolveEmail(input);
+      if (!r.email) {
+        showMessage(t("notFound"), "error");
+        setLoading(false);
+        return;
+      }
+      emailToUse = r.email;
+    }
+
+    setLoading(true, "loggingIn");
+
+    try {
+      // Force session-only persistence — Firebase auth dies when browser closes
+      await setPersistence(auth, browserSessionPersistence);
+      const cred = await signInWithEmailAndPassword(auth, emailToUse, password);
+
+      // Read sessionMinutes from system/config (fallback 30)
+      let sessionMinutes = DEFAULT_SESSION_MINUTES;
+      try {
+        const cfg = await getDoc(doc(db, "system", "config"));
+        if (cfg.exists()) {
+          const data = cfg.data();
+          if (Number(data.sessionMinutes) > 0) sessionMinutes = Number(data.sessionMinutes);
         }
+      } catch (err) {
+        console.warn("[session config]", err.code || err.message);
+      }
 
-        function initLanguage() {
-            const saved = localStorage.getItem('waciti-lang') || navigator.language.split('-')[0];
-            const valid = ['en', 'am', 'om'];
-            setLanguage(valid.includes(saved) ? saved : 'en');
+      // Reject inactive profile
+      try {
+        const snap = await getDoc(doc(db, "users", cred.user.uid));
+        if (snap.exists() && snap.data().status === "inactive") {
+          await signOut(auth);
+          clearSession();
+          showMessage(t("invalid"), "error");
+          setLoading(false);
+          return;
         }
+      } catch (err) {
+        console.warn("[profile]", err.code || err.message);
+      }
 
-        // ============================================================
-        // 3. TOAST
-        // ============================================================
-        function showToast(message, type = 'error') {
-            let container = document.getElementById('toast-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'toast-container';
-                container.className = 'toast-container';
-                document.body.appendChild(container);
-            }
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = document.createElement('i');
-            icon.className = type === 'error' ? 'fas fa-exclamation-circle' :
-                type === 'success' ? 'fas fa-check-circle' :
-                'fas fa-exclamation-triangle';
-            toast.appendChild(icon);
-            const text = document.createElement('span');
-            text.textContent = message;
-            toast.appendChild(text);
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('fade-out');
-                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
-            }, 4500);
-        }
+      // Store session in sessionStorage
+      writeSession(cred.user.uid, sessionMinutes);
+      try { sessionStorage.setItem("sacco.uid", cred.user.uid); } catch(e){}
 
-        // ============================================================
-        // 4. AUDIT LOGGING (UPDATED with proper old/new format)
-        // ============================================================
-        async function logAudit(action, collection, documentId, changes = {}, details = '') {
-            try {
-                const user = auth.currentUser;
-                await db.collection('audit').add({
-                    action: action,
-                    collection: collection,
-                    documentId: documentId,
-                    changes: changes,
-                    details: details || `${action} ${collection}`,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    userEmail: user?.email || 'system',
-                    userName: user?.displayName || user?.email || 'System',
-                    userDisplayName: user?.displayName || 'System'
-                });
-            } catch (e) {
-                console.error('Audit log error:', e);
-                // Do not throw — audit should not block login
-            }
-        }
+      showMessage(t("success"), "success");
+      setTimeout(() => { window.location.href = "pages/dashboard.html"; }, 400);
 
-        // ============================================================
-        // 5. PAGE INIT
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Language
-            initLanguage();
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.addEventListener('click', function() { setLanguage(this.dataset.lang); });
-            });
+    } catch (err) {
+      console.warn("[login]", err.code, err.message);
+      const key = AUTH_ERROR_MAP[err.code] || "invalid";
+      showMessage(t(key), "error");
+      setLoading(false);
+    }
+  });
+}
 
-            // Redirect if already logged in
-            auth.onAuthStateChanged(user => {
-                if (user) window.location.href = 'pages/dashboard.html';
-            });
+/* ============ BOOT ============ */
+(async function boot(){
+  let saved = null, browser = "en";
+  try { saved = localStorage.getItem(LANG_KEY); } catch(e){}
+  const b = (navigator.language || "en").slice(0,2);
+  browser = SUPPORTED.includes(b) ? b : "en";
+  LANG = SUPPORTED.includes(saved) ? saved : browser;
+  document.documentElement.lang = LANG;
+  document.body.classList.toggle("ethiopic", LANG === "am" || LANG === "om");
 
-            // Toggle password
-            document.getElementById('togglePassword').addEventListener('click', function() {
-                const input = document.getElementById('password');
-                const icon = this.querySelector('i');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                }
-            });
+  // redirect reason (expired session from a protected page)
+  let redirectReason = null;
+  try { redirectReason = sessionStorage.getItem("__redirectReason"); } catch(e){}
+  if (redirectReason) { try { sessionStorage.removeItem("__redirectReason"); } catch(e){} }
 
-            // ----- LOGIN WITH AUDIT -----
-            document.getElementById('loginForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value.trim();
-                const btn = document.getElementById('loginBtn');
-                const originalHtml = btn.innerHTML;
+  // If a session exists in this browser tab session AND hasn't expired → go to dashboard
+  const existing = readSession();
+  if (isSessionValid(existing)) {
+    // Firebase must also still have this uid (sessionStorage auth)
+    await auth.authStateReady?.();
+    if (auth.currentUser && auth.currentUser.uid === existing.uid) {
+      window.location.replace("pages/dashboard.html");
+      return;
+    } else {
+      // stale
+      clearSession();
+    }
+  } else if (existing) {
+    clearSession();
+  }
 
-                if (!email || !password) {
-                    showToast('Please fill in both fields.', 'warning');
-                    return;
-                }
+  renderLogin();
 
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+  if (redirectReason === "expired") {
+    setTimeout(() => {
+      const el = document.getElementById("message");
+      if (el) { el.textContent = t("sessionExpired"); el.className = "message error"; }
+    }, 100);
+  }
+})();
 
-                try {
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
+console.log("[sacco] login ready (session-based, email or username)");
+</script>
 
-                    // ---- AUDIT LOG: Login Success ----
-                    // Format: { email: { old: null, new: email }, status: { old: null, new: 'success' } }
-                    await logAudit(
-                        'login',
-                        'users',
-                        user.uid,
-                        {
-                            email: { old: null, new: email },
-                            status: { old: null, new: 'success' },
-                            uid: { old: null, new: user.uid }
-                        },
-                        `User ${email} logged in successfully`
-                    );
-
-                    showToast('✅ Login successful! Redirecting...', 'success');
-                    setTimeout(() => { window.location.href = 'pages/dashboard.html'; }, 500);
-
-                } catch (error) {
-                    let msg = 'Login failed.';
-                    let errorCode = error.code || 'unknown';
-
-                    switch (errorCode) {
-                        case 'auth/user-not-found':
-                            msg = 'No account found.';
-                            break;
-                        case 'auth/wrong-password':
-                            msg = 'Incorrect password.';
-                            break;
-                        case 'auth/invalid-email':
-                            msg = 'Invalid email.';
-                            break;
-                        case 'auth/too-many-requests':
-                            msg = 'Too many failed attempts. Try again later.';
-                            break;
-                        default:
-                            msg = error.message;
-                    }
-
-                    // ---- AUDIT LOG: Login Failed ----
-                    // Use email as documentId since we don't have a UID for failed login
-                    await logAudit(
-                        'login',
-                        'users',
-                        email,
-                        {
-                            email: { old: null, new: email },
-                            status: { old: null, new: 'failed' },
-                            error: { old: null, new: errorCode }
-                        },
-                        `Failed login attempt for ${email}: ${errorCode}`
-                    );
-
-                    showToast('❌ ' + msg, 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                    document.getElementById('password').value = '';
-                    document.getElementById('password').focus();
-                }
-            });
-        });
-    </script>
 </body>
 </html>
