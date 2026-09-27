@@ -510,9 +510,6 @@ import {
   serverTimestamp, writeBatch, GeoPoint
 } from "firebase/firestore";
 
-/* ============================================================
-   FIREBASE
-   ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBeQv8YLNfFFaTEZ6pxXaAy_K8n3u8V5X4",
   authDomain: "geresu-dhuki-sacco-75329.firebaseapp.com",
@@ -529,9 +526,6 @@ const LOGIN_URL = "../index.html";
 const LOGO_URL  = "../images/logo.png";
 const DEFAULT_SACCO_NAME = 'GERESU DHUKI SACCO';
 
-/* ============================================================
-   DEFAULT SETTINGS
-   ============================================================ */
 const DEFAULT_SETTINGS = {
   saccoName:'GERESU DHUKI SACCO', saccoShortName:'GD SACCO',
   saccoEmail:'', saccoPhone:'', saccoAddress:'',
@@ -572,9 +566,6 @@ const SECTION_FIELDS = {
 };
 const USER_EDITABLE_SECTIONS = ['appearance','notifications'];
 
-/* ============================================================
-   STATE
-   ============================================================ */
 let currentSettings = { ...DEFAULT_SETTINGS };
 let savedSettings = { ...DEFAULT_SETTINGS };
 let currentUserRole = 'viewer';
@@ -592,9 +583,6 @@ let currentUserProfile = {
 };
 let _profilePhotoDataURL = null;
 
-/* ============================================================
-   NAV
-   ============================================================ */
 const NAV = [
   { section:'Overview', items:[
     { key:'dashboard', label:'Dashboard', icon:'fa-th-large', href:'dashboard.html', roles:['*'] }
@@ -645,9 +633,6 @@ const ROLE_LABELS = {
 };
 const roleLabel = (r) => ROLE_LABELS[r] || (r||'').replace(/_/g,' ');
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
 const esc = (s) => (s == null ? '' : String(s)).replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials = (n) => (n || '?').trim().split(/\s+/).slice(0,2).map(s => s[0]).join('').toUpperCase();
@@ -675,28 +660,25 @@ function renderBrandTitle(name){
   return esc(head) + ' <span class="sacco-gold">' + esc(tail) + '</span>';
 }
 
-/* ============================================================
-   I18N
-   ============================================================ */
 const I18N = {
   en: {
     brandSub:'SACCO Management', logout:'Sign out', loading:'Loading…',
     pageTitle:'Settings', pageSub:'Configure your SACCO system preferences',
     breadcrumbHome:'Dashboard', breadcrumbSettings:'Settings',
-    settingsTitle:'System Settings', settingsSub:'Configure your SACCO system preferences',
     reloadSettings:'Reload', saveAllChanges:'Save All Changes',
     navCategoryGeneral:'General', navCategorySystem:'System', navCategoryData:'Data',
-    navGeneral:'Organization', navFinancial:'Financial', navLoan:'Loan Defaults', navPenaltiesSettings:'Penalties',
+    navGeneral:'Organization', navProfile:'Personal Profile',
+    navFinancial:'Financial', navLoan:'Loan Defaults', navPenaltiesSettings:'Penalties',
     navSecurity:'Session & Security', navNotifications:'Notifications', navAppearance:'Appearance',
     navAdvanced:'Advanced', navBackup:'Backup & Data', navDanger:'Danger Zone',
-    organizationInfo:'Organization Information', organizationInfoDesc:'Basic details about your SACCO',
+    organizationInfo:'Organization Information', organizationInfoDesc:'Basic details about your SACCO (admin only)',
     saccoName:'SACCO Name', saccoShortName:'Short Name', saccoEmail:'Email', saccoPhone:'Phone', saccoAddress:'Address',
     currency:'Currency', defaultLanguage:'Default Language',
     financialSettings:'Financial Settings', financialSettingsDesc:'Share value, share limits and financial settings',
     sharesSection:'Share Configuration', otherFinancial:'Other Financial Settings',
     shareValueSummary:'Share Value', minSharesSummary:'Minimum Shares', maxSharesSummary:'Maximum Shares',
     shareValueLabel:'Share Value (per share)', shareValueHint:'Nominal (par) value of one share',
-    minSharesLabel:'Minimum Shares', maxSharesLabel:'Maximum Shares', equalsAmountETB:'=',
+    minSharesLabel:'Minimum Shares', maxSharesLabel:'Maximum Shares',
     dividendPercentage:'Dividend Percentage', dividendPercentageHint:'Share of annual income distributed as dividend',
     minSavingsAmount:'Minimum Savings (ETB)', maxSavingsPerTxn:'Max Savings per Transaction',
     minWithdrawalAmount:'Min Withdrawal Amount',
@@ -741,7 +723,7 @@ const I18N = {
     passwordsDoNotMatch:'Passwords do not match.',
     passwordChangeSuccess:'Password changed successfully!',
     passwordChangeError:'Error changing password: ', wrongCurrentPassword:'Current password is incorrect.',
-    sessionSecurity:'Session & Security', sessionSecurityDesc:'Auto-logout, password requirements and access rules',
+    sessionSecurity:'Session & Security', sessionSecurityDesc:'Auto-logout, password rules and access (admin only)',
     currentSessionTimeout:'Current session timeout',
     sessionTimeoutApplies:'This value applies to ALL pages system-wide. Users will be auto-logged-out after',
     minutesInactive:'minutes of inactivity.',
@@ -776,19 +758,16 @@ const I18N = {
     exportAllData:'Export All Data (CSV)', exportAllDataJson:'Export All Data (JSON Backup)',
     exportSettings:'Export Settings (JSON)', importSettings:'Import Settings (JSON)',
     backupInfoTitle:'Full JSON backup',
-    backupInfoDesc:' includes customers, all transactions (savings, loans, repayments, withdrawals, penalties, dividends, shares), settings, users, and audit logs in a single file.',
+    backupInfoDesc:' includes customers, all transactions, settings, users, and audit logs in a single file.',
     importFullBackup:'Import Full Backup (JSON)', mergeFullBackup:'Merge Backup (Keep Existing)',
     confirmImportFullTitle:'Import Full Backup?',
     confirmImportFullMsg:'This will REPLACE all existing customers, transactions, users, and audit logs with the contents of the backup file. This action CANNOT be undone. Are you sure?',
     confirmMergeFullTitle:'Merge Full Backup?',
     confirmMergeFullMsg:'This will ADD records from the backup file. Existing records with the same ID will be updated (merged). Continue?',
-    importInProgress:'Importing backup... please wait.',
     importSuccess:'Backup imported successfully!', importMergeSuccess:'Backup merged successfully!',
     importFullError:'Backup import error: ', invalidBackupFormat:'Invalid backup format.',
     backupSummaryLabel:'Backup contains', backupSummaryCustomers:'customers', backupSummaryTransactions:'transactions',
     backupSummaryUsers:'users', backupSummaryAudit:'audit records',
-    backupImportedCounts:'Imported {c} customers, {t} transactions, {u} users, {a} audit records.',
-    backupImportWarningNoData:'The backup file contains no customers or transactions.',
     dangerZone:'Danger Zone', dangerZoneDesc:'Irreversible and destructive actions — proceed with caution',
     resetToDefaults:'Reset all settings to defaults', resetToDefaultsDesc:'Revert every configuration value back to its factory default. Your data is NOT affected.',
     clearCache:'Clear application cache', clearCacheDesc:'Clear locally cached data. All users will re-fetch fresh data on next load.',
@@ -797,7 +776,6 @@ const I18N = {
     discard:'Discard', saveAll:'Save All',
     unsavedChanges:'You have', unsavedChangesSuffix:'unsaved change(s)', allChangesSaved:'All changes saved',
     logoutTitle:'Logout Confirmation', logoutText:'Are you sure you want to log out?',
-    connectionSuccess:'✅ Connection successful!', connectionFailed:'❌ Connection failed: ',
     settingsSaved:'Settings saved successfully!', settingsLoadError:'Failed to load settings: ',
     settingsSaveError:'Failed to save settings: ', unauthorized:'You are not authorized to change this section.',
     readOnlyLabel:'Read-only:', roleAdminOnlySection:'Only administrators can edit this section.',
@@ -821,9 +799,7 @@ const t = (k, v) => {
   return s;
 };
 
-/* ============================================================
-   SHELL RENDER
-   ============================================================ */
+/* ============ SHELL ============ */
 function renderShell(){
   const navHtml = NAV.map(g => {
     const items = g.items.filter(canSeeNav);
@@ -916,7 +892,6 @@ function renderShell(){
     if (localStorage.getItem('sacco.sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
   } catch(e){}
 }
-
 function setLang(lang){
   if (!SUPPORTED.includes(lang)) lang = 'en';
   LANG = lang;
@@ -927,9 +902,7 @@ function setLang(lang){
   renderMain();
 }
 
-/* ============================================================
-   MAIN RENDER
-   ============================================================ */
+/* ============ MAIN RENDER ============ */
 function renderMain(){
   const host = document.getElementById('mainContent');
   if (!host) return;
@@ -957,7 +930,8 @@ function renderMain(){
       <aside class="settings-nav">
         <h4>${esc(t('navCategoryGeneral'))}</h4>
         <ul>
-          <li><button class="active" data-panel="general" data-section="general"><i class="fas fa-building"></i> <span>${esc(t('navGeneral'))}</span><i class="fas fa-lock nav-lock"></i></button></li>
+          <li><button class="active" data-panel="organization" data-section="general"><i class="fas fa-building"></i> <span>${esc(t('navGeneral'))}</span><i class="fas fa-lock nav-lock"></i></button></li>
+          <li><button data-panel="profile" data-section="profile" class="personal-allowed"><i class="fas fa-user-circle"></i> <span>${esc(t('navProfile'))}</span></button></li>
           <li><button data-panel="financial" data-section="financial"><i class="fas fa-coins"></i> <span>${esc(t('navFinancial'))}</span><i class="fas fa-lock nav-lock"></i></button></li>
           <li><button data-panel="loan" data-section="loan"><i class="fas fa-hand-holding-usd"></i> <span>${esc(t('navLoan'))}</span><i class="fas fa-lock nav-lock"></i></button></li>
           <li><button data-panel="penalties" data-section="penalties"><i class="fas fa-exclamation-triangle" style="color:#e67e22;"></i> <span>${esc(t('navPenaltiesSettings'))}</span><i class="fas fa-lock nav-lock"></i></button></li>
@@ -977,7 +951,8 @@ function renderMain(){
       </aside>
 
       <div class="settings-panels">
-        ${renderGeneralPanel()}
+        ${renderOrganizationPanel()}
+        ${renderProfilePanel()}
         ${renderFinancialPanel()}
         ${renderLoanPanel()}
         ${renderPenaltiesPanel()}
@@ -997,12 +972,10 @@ function renderMain(){
   fillProfileForm();
 }
 
-/* ============================================================
-   PANEL TEMPLATES
-   ============================================================ */
-function panelShell({ id, section, icon, title, desc, body, lock = true }){
+/* ============ PANEL HELPERS ============ */
+function panelShell({ id, section, icon, title, desc, body, lock = true, active = false, actions = true }){
   return `
-    <div class="settings-panel ${id === 'general' ? 'active' : ''}" id="panel-${id}">
+    <div class="settings-panel ${active ? 'active' : ''}" id="panel-${id}">
       <div class="settings-card">
         <div class="settings-card-header">
           <div class="card-icon"><i class="fas ${icon}"></i></div>
@@ -1018,11 +991,12 @@ function panelShell({ id, section, icon, title, desc, body, lock = true }){
           </div>` : ''}
           ${body}
         </div>
+        ${actions ? `
         <div class="settings-card-actions">
           <span class="save-state-hint" data-section="${section}"><i class="fas fa-check-circle"></i><span>${esc(t('allChangesSaved'))}</span></span>
           <button class="btn btn--secondary btn--sm" data-reset="${section}"><i class="fas fa-undo"></i> ${esc(t('reset'))}</button>
           <button class="btn btn--primary btn--sm" data-save="${section}"><i class="fas fa-save"></i> ${esc(t('save'))}</button>
-        </div>
+        </div>` : ''}
       </div>
     </div>`;
 }
@@ -1051,7 +1025,8 @@ function fldToggle(id, title, desc){
   </div>`;
 }
 
-function renderGeneralPanel(){
+/* ============ ORGANIZATION PANEL ============ */
+function renderOrganizationPanel(){
   const body = `
     ${row2(
       fld('saccoName', t('saccoName'), { placeholder:'GERESU DHUKI SACCO', required:true }),
@@ -1070,106 +1045,25 @@ function renderGeneralPanel(){
       fldSel('defaultLanguage', t('defaultLanguage'), {}, [
         {v:'en',t:'English'},{v:'am',t:'አማርኛ (Amharic)'},{v:'om',t:'Afaan Oromoo'}
       ])
-    )}`;
-  return panelShell({ id:'general', section:'general', icon:'fa-building',
-    title:t('organizationInfo'), desc:t('organizationInfoDesc'), body });
-}
-function renderFinancialPanel(){
-  const body = `
-    <h4 style="font-size:14px;font-weight:800;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:8px;">
-      <i class="fas fa-chart-pie" style="color:var(--primary);"></i> ${esc(t('sharesSection'))}
-    </h4>
-    <div class="share-summary-box">
-      <div class="share-item"><span class="label">${esc(t('shareValueSummary'))}</span>
-        <span class="value"><span id="summaryShareValue">100.00</span><span class="cur">ETB</span></span></div>
-      <div class="share-item"><span class="label">${esc(t('minSharesSummary'))}</span>
-        <span class="value"><span id="summaryMinShares">5</span> × <span id="summaryMinAmountInline">500.00</span><span class="cur">ETB</span></span></div>
-      <div class="share-item"><span class="label">${esc(t('maxSharesSummary'))}</span>
-        <span class="value"><span id="summaryMaxShares">1000</span> × <span id="summaryMaxAmountInline">100,000.00</span><span class="cur">ETB</span></span></div>
-    </div>
-    ${row3(
-      fld('shareValue', t('shareValueLabel'), { placeholder:'100', unit:'ETB', required:true, step:'0.01', min:'0', hint:t('shareValueHint') }),
-      fld('minShares', t('minSharesLabel'), { placeholder:'5', required:true, step:'1', min:'0', hint:`= <strong id="minSharesETB">500.00</strong> ETB` }),
-      fld('maxShares', t('maxSharesLabel'), { placeholder:'1000', required:true, step:'1', min:'0', hint:`= <strong id="maxSharesETB">100,000.00</strong> ETB` })
     )}
-    <h4 style="font-size:14px;font-weight:800;margin:22px 0 12px;color:var(--text);display:flex;align-items:center;gap:8px;">
-      <i class="fas fa-sliders-h" style="color:var(--primary);"></i> ${esc(t('otherFinancial'))}
-    </h4>
-    ${row3(
-      fld('dividendPercentage', t('dividendPercentage'), { placeholder:'70', unit:'%', step:'0.1', min:'0', max:'100', hint:t('dividendPercentageHint') }),
-      fld('minSavingsAmount', t('minSavingsAmount'), { placeholder:'100', step:'1', min:'0' }),
-      fld('maxSavingsPerTxn', t('maxSavingsPerTxn'), { placeholder:'100000', step:'1', min:'0' })
-    )}
-    ${row3(fld('minWithdrawalAmount', t('minWithdrawalAmount'), { placeholder:'50', step:'1', min:'0' }), '', '')}
-    ${fldToggle('allowNegativeCapital', t('allowNegativeCapital'), t('allowNegativeCapitalDesc'))}
   `;
-  return panelShell({ id:'financial', section:'financial', icon:'fa-coins',
-    title:t('financialSettings'), desc:t('financialSettingsDesc'), body });
-}
-function renderLoanPanel(){
-  const body = `
-    ${row3(
-      fld('defaultLoanInterestRate', t('defaultInterestRate'), { placeholder:'12', unit:'%', step:'0.1', min:'0', max:'100' }),
-      fld('defaultLoanPeriod', t('defaultLoanPeriod'), { placeholder:'12', unit:'months', step:'1', min:'1' }),
-      fldSel('defaultLoanType', t('defaultLoanType'), {}, [
-        {v:'simple',t:'Simple Interest'},{v:'compound',t:'Compound Interest'},
-        {v:'fixed',t:'Fixed Rate'},{v:'reducing',t:'Reducing Balance'}
-      ])
-    )}
-    ${row2(
-      fld('minLoanAmount', t('minLoanAmount'), { placeholder:'1000', step:'1', min:'0' }),
-      fld('maxLoanAmount', t('maxLoanAmount'), { placeholder:'500000', step:'1', min:'0' })
-    )}
-    ${fldToggle('requireApprovalLoans', t('requireApprovalLoans'), t('requireApprovalLoansDesc'))}
-    ${fldToggle('allowPartialRepayment', t('allowPartialRepayment'), t('allowPartialRepaymentDesc'))}
-    <h4 style="font-size:14px;font-weight:800;margin:22px 0 8px;color:var(--text);display:flex;align-items:center;gap:8px;">
-      <i class="fas fa-undo-alt" style="color:var(--primary);"></i> ${esc(t('repaymentRulesSection'))}
-    </h4>
-    ${row3(
-      fld('minMonthsForRepayAll', t('minMonthsForRepayAllLabel'), { placeholder:'6', unit:'months', step:'1', min:'0', max:'60', required:true, hint:t('minMonthsForRepayAllHint') }),
-      `<div class="settings-form-group" style="grid-column:span 2;">
-        <label>${esc(t('repayAllPreviewLabel'))}</label>
-        <span class="input-hint" style="margin-top:8px;font-size:13px;line-height:1.7;">
-          ${esc(t('repayAllPreviewPrefix'))} <strong id="minMonthsForRepayAllPreview">6</strong> ${esc(t('months'))}.
-          ${esc(t('interestWaiverPreview'))} <strong id="interestWaiverPreviewText" style="color:var(--success);">will be waived</strong>.
-        </span>
-      </div>`, ''
-    )}
-    ${fldToggle('allowInterestWaiver', t('allowInterestWaiverLabel'), t('allowInterestWaiverDesc'))}
-    ${fldToggle('waiverRequiresMinMonths', t('waiverRequiresMinMonthsLabel'), t('waiverRequiresMinMonthsDesc'))}
-  `;
-  return panelShell({ id:'loan', section:'loan', icon:'fa-hand-holding-usd',
-    title:t('loanDefaults'), desc:t('loanDefaultsDesc'), body });
-}
-function renderPenaltiesPanel(){
-  const body = `
-    ${fldToggle('penaltiesEnabled', t('penaltiesEnabled'), t('penaltiesEnabledDesc'))}
-    <div class="settings-form-row three" style="margin-top:18px;">
-      ${fld('loansPenaltyRate', t('penaltyRate'), { placeholder:'5', unit:'%', step:'0.1', min:'0', max:'100', required:true, hint:t('penaltyRateHint') })}
-      ${fld('gracePeriod', t('gracePeriod'), { placeholder:'7', unit:'days', step:'1', min:'0', max:'90', hint:t('gracePeriodHint') })}
-      ${fld('penaltiesMinAmount', t('penaltyMinAmountLabel'), { placeholder:'10', step:'1', min:'0' })}
-    </div>
-    ${row3(fld('savingsPenaltyRate', t('savingsPenaltyRate'), { placeholder:'2', unit:'%', step:'0.1', min:'0', max:'100', required:true, hint:t('savingsPenaltyRateHint') }), '', '')}
-    ${row3(
-      fld('penaltiesMaxAmount', t('penaltyMaxAmountLabel'), { placeholder:'10000', step:'1', min:'0', hint:t('penaltyMaxAmountHint') }),
-      fld('penaltiesNotifyDays', t('penaltyNotifyDaysLabel'), { placeholder:'3', step:'1', min:'0', max:'60' }),
-      ''
-    )}
-    ${fldToggle('penaltyAutoGenerate', t('penaltyAutoGenerate'), t('penaltyAutoGenerateDesc'))}
-    ${fldToggle('penaltiesCompound', t('penaltyCompoundLabel'), t('penaltyCompoundLabelDesc'))}
-    ${fldToggle('penaltiesApplyLoans', t('penaltyApplyLoansLabel'), t('penaltyApplyLoansLabelDesc'))}
-    ${fldToggle('penaltiesApplySavings', t('penaltyApplySavingsLabel'), t('penaltyApplySavingsLabelDesc'))}
-  `;
-  return panelShell({ id:'penalties', section:'penalties', icon:'fa-exclamation-triangle',
-    title:t('penaltiesSettings'), desc:t('penaltiesSettingsDesc'), body });
+  return panelShell({ id:'organization', section:'general', icon:'fa-building',
+    title:t('organizationInfo'), desc:t('organizationInfoDesc'), body, active:true });
 }
 
-/* ============================================================
-   SECURITY PANEL — with Profile Editor at the top
-   ============================================================ */
-function renderSecurityPanel(){
-  const body = `
-    <!-- PERSONAL PROFILE -->
+/* ============ PERSONAL PROFILE PANEL — profile card + password card ============ */
+function renderProfilePanel(){
+  return `
+    <div class="settings-panel" id="panel-profile">
+      ${renderProfileCard()}
+      ${renderPasswordCard()}
+    </div>
+  `;
+}
+
+/* ============ PROFILE CARD ============ */
+function renderProfileCard(){
+  return `
     <div class="settings-card" style="margin-bottom:20px;border-left:4px solid var(--primary);">
       <div class="settings-card-header">
         <div class="card-icon"><i class="fas fa-id-badge"></i></div>
@@ -1258,9 +1152,13 @@ function renderSecurityPanel(){
         <button class="btn btn--primary btn--sm" id="profileSaveBtn"><i class="fas fa-save"></i> Save Profile</button>
       </div>
     </div>
+  `;
+}
 
-    <!-- CHANGE PASSWORD -->
-    <div class="settings-card" style="margin-bottom:20px;border-left:4px solid var(--primary);">
+/* ============ PASSWORD CARD ============ */
+function renderPasswordCard(){
+  return `
+    <div class="settings-card" style="border-left:4px solid var(--primary);">
       <div class="settings-card-header">
         <div class="card-icon"><i class="fas fa-key"></i></div>
         <div class="card-title-block">
@@ -1301,61 +1199,142 @@ function renderSecurityPanel(){
         <button class="btn btn--primary btn--sm" id="changePasswordBtn"><i class="fas fa-key"></i> ${esc(t('changePasswordBtn'))}</button>
       </div>
     </div>
-
-    <!-- SESSION & SECURITY -->
-    <div class="settings-card">
-      <div class="settings-card-header">
-        <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
-        <div class="card-title-block">
-          <h3>${esc(t('sessionSecurity'))}</h3>
-          <p>${esc(t('sessionSecurityDesc'))}</p>
-        </div>
-      </div>
-      <div class="settings-card-body">
-        <div class="role-locked-banner" id="lock-security">
-          <i class="fas fa-lock"></i>
-          <div><strong>${esc(t('readOnlyLabel'))}</strong> ${esc(t('roleAdminOnlySection'))}</div>
-        </div>
-        <div class="session-info-banner">
-          <div class="banner-icon"><i class="fas fa-clock"></i></div>
-          <div class="banner-content">
-            <div class="banner-title">${esc(t('currentSessionTimeout'))}</div>
-            <div class="banner-desc">${esc(t('sessionTimeoutApplies'))} <strong id="sessionTimeoutBannerValue">5</strong> ${esc(t('minutesInactive'))}</div>
-          </div>
-          <span class="banner-badge" id="sessionTimeoutBadge">5 min</span>
-        </div>
-        ${row3(
-          `<div class="settings-form-group">
-            <label>${esc(t('sessionTimeout'))} <span class="required">*</span></label>
-            <div class="input-with-unit"><input type="number" id="sessionTimeout" step="1" min="1" max="1440" placeholder="5" /><span class="unit">min</span></div>
-            <span class="input-hint">${esc(t('sessionTimeoutHint'))}</span>
-            <div class="session-presets" id="sessionPresets">
-              <button type="button" data-minutes="1">1 min</button>
-              <button type="button" data-minutes="5">5 min</button>
-              <button type="button" data-minutes="15">15 min</button>
-              <button type="button" data-minutes="30">30 min</button>
-              <button type="button" data-minutes="60">1 hour</button>
-              <button type="button" data-minutes="120">2 hours</button>
-            </div>
-          </div>`,
-          fld('maxLoginAttempts', t('maxLoginAttempts'), { placeholder:'5', step:'1', min:'3', max:'20' }),
-          fld('passwordMinLength', t('passwordMinLength'), { placeholder:'8', step:'1', min:'6', max:'32' })
-        )}
-        ${fldToggle('passwordRequireNumber', t('passwordRequireNumber'), t('passwordRequireNumberDesc'))}
-        ${fldToggle('passwordRequireSpecial', t('passwordRequireSpecial'), t('passwordRequireSpecialDesc'))}
-        ${fldToggle('twoFactorEnabled', t('twoFactorEnabled'), t('twoFactorEnabledDesc'))}
-        ${fldToggle('forceLogoutOnPasswordChange', t('forceLogoutOnPasswordChange'), t('forceLogoutOnPasswordChangeDesc'))}
-      </div>
-      <div class="settings-card-actions">
-        <span class="save-state-hint" data-section="security"><i class="fas fa-check-circle"></i><span>${esc(t('allChangesSaved'))}</span></span>
-        <button class="btn btn--secondary btn--sm" data-reset="security"><i class="fas fa-undo"></i> ${esc(t('reset'))}</button>
-        <button class="btn btn--primary btn--sm" data-save="security"><i class="fas fa-save"></i> ${esc(t('save'))}</button>
-      </div>
-    </div>
   `;
-  return `<div class="settings-panel" id="panel-security">${body}</div>`;
 }
 
+/* ============ FINANCIAL ============ */
+function renderFinancialPanel(){
+  const body = `
+    <h4 style="font-size:14px;font-weight:800;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:8px;">
+      <i class="fas fa-chart-pie" style="color:var(--primary);"></i> ${esc(t('sharesSection'))}
+    </h4>
+    <div class="share-summary-box">
+      <div class="share-item"><span class="label">${esc(t('shareValueSummary'))}</span>
+        <span class="value"><span id="summaryShareValue">100.00</span><span class="cur">ETB</span></span></div>
+      <div class="share-item"><span class="label">${esc(t('minSharesSummary'))}</span>
+        <span class="value"><span id="summaryMinShares">5</span> × <span id="summaryMinAmountInline">500.00</span><span class="cur">ETB</span></span></div>
+      <div class="share-item"><span class="label">${esc(t('maxSharesSummary'))}</span>
+        <span class="value"><span id="summaryMaxShares">1000</span> × <span id="summaryMaxAmountInline">100,000.00</span><span class="cur">ETB</span></span></div>
+    </div>
+    ${row3(
+      fld('shareValue', t('shareValueLabel'), { placeholder:'100', unit:'ETB', required:true, step:'0.01', min:'0', hint:t('shareValueHint') }),
+      fld('minShares', t('minSharesLabel'), { placeholder:'5', required:true, step:'1', min:'0', hint:`= <strong id="minSharesETB">500.00</strong> ETB` }),
+      fld('maxShares', t('maxSharesLabel'), { placeholder:'1000', required:true, step:'1', min:'0', hint:`= <strong id="maxSharesETB">100,000.00</strong> ETB` })
+    )}
+    <h4 style="font-size:14px;font-weight:800;margin:22px 0 12px;color:var(--text);display:flex;align-items:center;gap:8px;">
+      <i class="fas fa-sliders-h" style="color:var(--primary);"></i> ${esc(t('otherFinancial'))}
+    </h4>
+    ${row3(
+      fld('dividendPercentage', t('dividendPercentage'), { placeholder:'70', unit:'%', step:'0.1', min:'0', max:'100', hint:t('dividendPercentageHint') }),
+      fld('minSavingsAmount', t('minSavingsAmount'), { placeholder:'100', step:'1', min:'0' }),
+      fld('maxSavingsPerTxn', t('maxSavingsPerTxn'), { placeholder:'100000', step:'1', min:'0' })
+    )}
+    ${row3(fld('minWithdrawalAmount', t('minWithdrawalAmount'), { placeholder:'50', step:'1', min:'0' }), '', '')}
+    ${fldToggle('allowNegativeCapital', t('allowNegativeCapital'), t('allowNegativeCapitalDesc'))}
+  `;
+  return panelShell({ id:'financial', section:'financial', icon:'fa-coins',
+    title:t('financialSettings'), desc:t('financialSettingsDesc'), body });
+}
+
+/* ============ LOAN ============ */
+function renderLoanPanel(){
+  const body = `
+    ${row3(
+      fld('defaultLoanInterestRate', t('defaultInterestRate'), { placeholder:'12', unit:'%', step:'0.1', min:'0', max:'100' }),
+      fld('defaultLoanPeriod', t('defaultLoanPeriod'), { placeholder:'12', unit:'months', step:'1', min:'1' }),
+      fldSel('defaultLoanType', t('defaultLoanType'), {}, [
+        {v:'simple',t:'Simple Interest'},{v:'compound',t:'Compound Interest'},
+        {v:'fixed',t:'Fixed Rate'},{v:'reducing',t:'Reducing Balance'}
+      ])
+    )}
+    ${row2(
+      fld('minLoanAmount', t('minLoanAmount'), { placeholder:'1000', step:'1', min:'0' }),
+      fld('maxLoanAmount', t('maxLoanAmount'), { placeholder:'500000', step:'1', min:'0' })
+    )}
+    ${fldToggle('requireApprovalLoans', t('requireApprovalLoans'), t('requireApprovalLoansDesc'))}
+    ${fldToggle('allowPartialRepayment', t('allowPartialRepayment'), t('allowPartialRepaymentDesc'))}
+    <h4 style="font-size:14px;font-weight:800;margin:22px 0 8px;color:var(--text);display:flex;align-items:center;gap:8px;">
+      <i class="fas fa-undo-alt" style="color:var(--primary);"></i> ${esc(t('repaymentRulesSection'))}
+    </h4>
+    ${row3(
+      fld('minMonthsForRepayAll', t('minMonthsForRepayAllLabel'), { placeholder:'6', unit:'months', step:'1', min:'0', max:'60', required:true, hint:t('minMonthsForRepayAllHint') }),
+      `<div class="settings-form-group" style="grid-column:span 2;">
+        <label>${esc(t('repayAllPreviewLabel'))}</label>
+        <span class="input-hint" style="margin-top:8px;font-size:13px;line-height:1.7;">
+          ${esc(t('repayAllPreviewPrefix'))} <strong id="minMonthsForRepayAllPreview">6</strong> ${esc(t('months'))}.
+          ${esc(t('interestWaiverPreview'))} <strong id="interestWaiverPreviewText" style="color:var(--success);">will be waived</strong>.
+        </span>
+      </div>`, ''
+    )}
+    ${fldToggle('allowInterestWaiver', t('allowInterestWaiverLabel'), t('allowInterestWaiverDesc'))}
+    ${fldToggle('waiverRequiresMinMonths', t('waiverRequiresMinMonthsLabel'), t('waiverRequiresMinMonthsDesc'))}
+  `;
+  return panelShell({ id:'loan', section:'loan', icon:'fa-hand-holding-usd',
+    title:t('loanDefaults'), desc:t('loanDefaultsDesc'), body });
+}
+
+/* ============ PENALTIES ============ */
+function renderPenaltiesPanel(){
+  const body = `
+    ${fldToggle('penaltiesEnabled', t('penaltiesEnabled'), t('penaltiesEnabledDesc'))}
+    <div class="settings-form-row three" style="margin-top:18px;">
+      ${fld('loansPenaltyRate', t('penaltyRate'), { placeholder:'5', unit:'%', step:'0.1', min:'0', max:'100', required:true, hint:t('penaltyRateHint') })}
+      ${fld('gracePeriod', t('gracePeriod'), { placeholder:'7', unit:'days', step:'1', min:'0', max:'90', hint:t('gracePeriodHint') })}
+      ${fld('penaltiesMinAmount', t('penaltyMinAmountLabel'), { placeholder:'10', step:'1', min:'0' })}
+    </div>
+    ${row3(fld('savingsPenaltyRate', t('savingsPenaltyRate'), { placeholder:'2', unit:'%', step:'0.1', min:'0', max:'100', required:true, hint:t('savingsPenaltyRateHint') }), '', '')}
+    ${row3(
+      fld('penaltiesMaxAmount', t('penaltyMaxAmountLabel'), { placeholder:'10000', step:'1', min:'0', hint:t('penaltyMaxAmountHint') }),
+      fld('penaltiesNotifyDays', t('penaltyNotifyDaysLabel'), { placeholder:'3', step:'1', min:'0', max:'60' }),
+      ''
+    )}
+    ${fldToggle('penaltyAutoGenerate', t('penaltyAutoGenerate'), t('penaltyAutoGenerateDesc'))}
+    ${fldToggle('penaltiesCompound', t('penaltyCompoundLabel'), t('penaltyCompoundLabelDesc'))}
+    ${fldToggle('penaltiesApplyLoans', t('penaltyApplyLoansLabel'), t('penaltyApplyLoansLabelDesc'))}
+    ${fldToggle('penaltiesApplySavings', t('penaltyApplySavingsLabel'), t('penaltyApplySavingsLabelDesc'))}
+  `;
+  return panelShell({ id:'penalties', section:'penalties', icon:'fa-exclamation-triangle',
+    title:t('penaltiesSettings'), desc:t('penaltiesSettingsDesc'), body });
+}
+
+/* ============ SECURITY (session only) ============ */
+function renderSecurityPanel(){
+  const body = `
+    <div class="session-info-banner">
+      <div class="banner-icon"><i class="fas fa-clock"></i></div>
+      <div class="banner-content">
+        <div class="banner-title">${esc(t('currentSessionTimeout'))}</div>
+        <div class="banner-desc">${esc(t('sessionTimeoutApplies'))} <strong id="sessionTimeoutBannerValue">5</strong> ${esc(t('minutesInactive'))}</div>
+      </div>
+      <span class="banner-badge" id="sessionTimeoutBadge">5 min</span>
+    </div>
+    ${row3(
+      `<div class="settings-form-group">
+        <label>${esc(t('sessionTimeout'))} <span class="required">*</span></label>
+        <div class="input-with-unit"><input type="number" id="sessionTimeout" step="1" min="1" max="1440" placeholder="5" /><span class="unit">min</span></div>
+        <span class="input-hint">${esc(t('sessionTimeoutHint'))}</span>
+        <div class="session-presets" id="sessionPresets">
+          <button type="button" data-minutes="1">1 min</button>
+          <button type="button" data-minutes="5">5 min</button>
+          <button type="button" data-minutes="15">15 min</button>
+          <button type="button" data-minutes="30">30 min</button>
+          <button type="button" data-minutes="60">1 hour</button>
+          <button type="button" data-minutes="120">2 hours</button>
+        </div>
+      </div>`,
+      fld('maxLoginAttempts', t('maxLoginAttempts'), { placeholder:'5', step:'1', min:'3', max:'20' }),
+      fld('passwordMinLength', t('passwordMinLength'), { placeholder:'8', step:'1', min:'6', max:'32' })
+    )}
+    ${fldToggle('passwordRequireNumber', t('passwordRequireNumber'), t('passwordRequireNumberDesc'))}
+    ${fldToggle('passwordRequireSpecial', t('passwordRequireSpecial'), t('passwordRequireSpecialDesc'))}
+    ${fldToggle('twoFactorEnabled', t('twoFactorEnabled'), t('twoFactorEnabledDesc'))}
+    ${fldToggle('forceLogoutOnPasswordChange', t('forceLogoutOnPasswordChange'), t('forceLogoutOnPasswordChangeDesc'))}
+  `;
+  return panelShell({ id:'security', section:'security', icon:'fa-shield-alt',
+    title:t('sessionSecurity'), desc:t('sessionSecurityDesc'), body });
+}
+
+/* ============ NOTIFICATIONS ============ */
 function renderNotificationsPanel(){
   const body = `
     <div class="personal-banner"><i class="fas fa-user"></i>
@@ -1476,9 +1455,7 @@ function renderDangerPanel(){
     title:t('dangerZone'), desc:t('dangerZoneDesc'), body });
 }
 
-/* ============================================================
-   WIRE MAIN EVENTS
-   ============================================================ */
+/* ============ WIRE MAIN EVENTS ============ */
 function wireMainEvents(){
   document.querySelectorAll('.settings-nav button').forEach(btn => {
     btn.addEventListener('click', function(){
@@ -1580,21 +1557,17 @@ function wireMainEvents(){
     el.addEventListener('change', updateDirtyIndicators);
   });
 
-  // live-update sidebar brand on SACCO name change
   document.getElementById('saccoName')?.addEventListener('input', function(){
     currentSettings.saccoName = this.value;
     const title = document.querySelector('.sidebar__title');
     if (title) title.innerHTML = renderBrandTitle(this.value);
   });
 
-  // wire profile editor (must be after main render)
   wireProfileEditor();
   fillProfileForm();
 }
 
-/* ============================================================
-   PROFILE EDITOR
-   ============================================================ */
+/* ============ PROFILE LOGIC ============ */
 async function loadUserProfile(){
   if (!auth.currentUser) return;
   try {
@@ -1618,7 +1591,6 @@ async function loadUserProfile(){
     }
   } catch (e) { console.warn('[profile] load', e.message); }
 }
-
 function initialsFromName(name){
   return (name || 'U').trim().split(/\s+/).slice(0,2).map(s => s[0]).join('').toUpperCase();
 }
@@ -1708,9 +1680,7 @@ function wireProfileEditor(){
     document.getElementById(id)?.addEventListener('input', () => markProfileDirty(true));
   });
 
-  document.getElementById('profileResetBtn')?.addEventListener('click', () => {
-    fillProfileForm();
-  });
+  document.getElementById('profileResetBtn')?.addEventListener('click', () => { fillProfileForm(); });
   document.getElementById('profileSaveBtn')?.addEventListener('click', saveUserProfile);
 }
 async function saveUserProfile(){
@@ -1750,7 +1720,6 @@ async function saveUserProfile(){
 
     await logAudit('updated', 'users', u.uid, { fields: Object.keys(payload) }, 'User updated own profile');
 
-    // repaint shell + main so topbar and form reflect changes immediately
     renderShell();
     renderMain();
     toast('Profile updated successfully!', 'success');
@@ -1762,11 +1731,9 @@ async function saveUserProfile(){
   }
 }
 
-/* ============================================================
-   PERMISSIONS
-   ============================================================ */
+/* ============ PERMISSIONS ============ */
 function applyPermissions(){
-  const adminOnlySections = ['general','financial','loan','penalties','security','advanced','backup','danger'];
+  const adminOnlySections = ['financial','loan','penalties','security','advanced','backup','danger'];
   Object.keys(SECTION_FIELDS).forEach(section => {
     const fields = SECTION_FIELDS[section] || [];
     const locked = adminOnlySections.includes(section) && !isAdmin;
@@ -1781,13 +1748,16 @@ function applyPermissions(){
       btn.style.opacity = locked ? '0.5' : '';
     });
   });
+
   ['resetAllSettingsBtn','clearCacheBtn','deleteAllTransactionsBtn','importSettingsBtn',
    'exportAllDataBtn','exportAllDataJsonBtn','exportSettingsBtn','importFullBackupBtn','mergeFullBackupBtn'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.disabled = !isAdmin; el.style.opacity = !isAdmin ? '0.5' : ''; }
   });
+
   document.querySelectorAll('.settings-nav button').forEach(btn => {
     const section = btn.dataset.section;
+    if (section === 'profile') { btn.classList.remove('locked'); return; }
     const locked = adminOnlySections.includes(section) && !isAdmin;
     btn.classList.toggle('locked', locked);
   });
@@ -1797,9 +1767,7 @@ function canEditSection(section){
   return USER_EDITABLE_SECTIONS.includes(section);
 }
 
-/* ============================================================
-   SHARE COMPUTATIONS
-   ============================================================ */
+/* ============ SHARE COMPUTATIONS ============ */
 function updateShareETBDisplays(){
   const sv = parseFloat(document.getElementById('shareValue')?.value) || 0;
   const mn = parseInt(document.getElementById('minShares')?.value) || 0;
@@ -1827,9 +1795,7 @@ function updateRepaymentRulesPreview(){
   }
 }
 
-/* ============================================================
-   LOAD / SAVE / RESET
-   ============================================================ */
+/* ============ LOAD / SAVE ============ */
 function loadSettingsToForm(settings){
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
   const chk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
@@ -1919,7 +1885,6 @@ function loadSettingsToForm(settings){
   applySessionTimeoutFromSettings();
   updateDirtyIndicators();
 }
-
 function collectFormData(){
   const g = (id) => document.getElementById(id);
   const v = (id) => g(id)?.value ?? '';
@@ -1935,7 +1900,6 @@ function collectFormData(){
   data.saccoAddress = v('saccoAddress').trim();
   data.currency = v('currency');
   data.defaultLanguage = v('defaultLanguage');
-
   data.shareValue = n('shareValue');
   data.minShares = i('minShares');
   data.maxShares = i('maxShares');
@@ -1946,7 +1910,6 @@ function collectFormData(){
   data.maxSavingsPerTxn = n('maxSavingsPerTxn');
   data.minWithdrawalAmount = n('minWithdrawalAmount');
   data.allowNegativeCapital = c('allowNegativeCapital');
-
   data.defaultLoanInterestRate = n('defaultLoanInterestRate');
   data.defaultLoanPeriod = i('defaultLoanPeriod');
   data.defaultLoanType = v('defaultLoanType');
@@ -1957,7 +1920,6 @@ function collectFormData(){
   data.minMonthsForRepayAll = Math.max(0, i('minMonthsForRepayAll'));
   data.allowInterestWaiver = c('allowInterestWaiver');
   data.waiverRequiresMinMonths = c('waiverRequiresMinMonths');
-
   data.penaltiesEnabled = c('penaltiesEnabled');
   data.loansPenaltyRate = n('loansPenaltyRate');
   data.penaltyRate = data.loansPenaltyRate;
@@ -1970,7 +1932,6 @@ function collectFormData(){
   data.penaltiesCompound = c('penaltiesCompound');
   data.penaltiesApplyLoans = c('penaltiesApplyLoans');
   data.penaltiesApplySavings = c('penaltiesApplySavings');
-
   data.sessionTimeout = i('sessionTimeout');
   data.sessionTimeoutMinutes = data.sessionTimeout;
   data.sessionTimeoutSeconds = data.sessionTimeout * 60;
@@ -1980,7 +1941,6 @@ function collectFormData(){
   data.passwordRequireSpecial = c('passwordRequireSpecial');
   data.twoFactorEnabled = c('twoFactorEnabled');
   data.forceLogoutOnPasswordChange = c('forceLogoutOnPasswordChange');
-
   data.enableEmailNotifications = c('enableEmailNotifications');
   data.enableSmsNotifications = c('enableSmsNotifications');
   data.notifyLoanDue = c('notifyLoanDue');
@@ -1989,24 +1949,20 @@ function collectFormData(){
   data.notifyLargeTransaction = c('notifyLargeTransaction');
   data.largeTransactionThreshold = n('largeTransactionThreshold');
   data.notificationEmail = v('notificationEmail').trim();
-
   data.theme = v('theme');
   data.itemsPerPage = v('itemsPerPage');
   data.dateFormat = v('dateFormat');
   data.defaultPrintOrientation = v('defaultPrintOrientation');
   data.showSidebarCollapsed = c('showSidebarCollapsed');
   data.showDashboardAnimations = c('showDashboardAnimations');
-
   data.enableAuditLog = c('enableAuditLog');
   data.enableDuplicateCheck = c('enableDuplicateCheck');
   data.autoApproveSmallTransactions = c('autoApproveSmallTransactions');
   data.autoApproveThreshold = n('autoApproveThreshold');
   data.dataRetentionDays = i('dataRetentionDays');
-
   data.autoBackupEnabled = c('autoBackupEnabled');
   data.backupFrequency = v('backupFrequency');
   data.backupEmail = v('backupEmail').trim();
-
   return data;
 }
 
@@ -2049,14 +2005,12 @@ function updateDirtyIndicators(){
 }
 
 async function saveSection(section){
-  if (!canEditSection(section)) { toast(t('unauthorized'), 'error'); return; }
+  if (!canEditSection(section) && section !== 'general') { toast(t('unauthorized'), 'error'); return; }
   const data = collectFormData();
-
   if (section === 'general') {
     const name = String(data.saccoName || '').trim();
     if (name.length < 3) { toast('SACCO Name is required (min 3 characters).', 'warning'); return; }
   }
-
   try {
     await setDoc(doc(db, 'settings', 'system'), data, { merge: true });
     await logAudit('updated', 'settings', 'system', { section, changes: data }, `Settings updated (${section})`);
@@ -2070,7 +2024,6 @@ async function saveSection(section){
     toast(t('settingsSaveError') + err.message, 'error');
   }
 }
-
 async function saveAll(){
   const data = collectFormData();
   if (isAdmin) {
@@ -2101,9 +2054,8 @@ async function saveAll(){
     toast(t('settingsSaveError') + err.message, 'error');
   }
 }
-
 function resetSection(section){
-  if (!canEditSection(section)) { toast(t('unauthorized'), 'error'); return; }
+  if (!canEditSection(section) && section !== 'general') { toast(t('unauthorized'), 'error'); return; }
   showConfirmModal(t('confirmResetTitle'), t('confirmResetMsg'), 'warning', () => {
     const fields = SECTION_FIELDS[section] || [];
     fields.forEach(fid => {
@@ -2123,9 +2075,7 @@ function resetSection(section){
   });
 }
 
-/* ============================================================
-   SESSION TIMEOUT
-   ============================================================ */
+/* ============ SESSION TIMEOUT DISPLAY ============ */
 function applySessionTimeoutFromSettings(){
   let mins = Number(currentSettings.sessionTimeout) || 5;
   if (mins < 1) mins = 1;
@@ -2139,9 +2089,7 @@ function applySessionTimeoutFromSettings(){
   });
 }
 
-/* ============================================================
-   THEME
-   ============================================================ */
+/* ============ THEME ============ */
 function applyTheme(theme){
   if (theme === 'auto') {
     const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -2157,9 +2105,7 @@ function applyTheme(theme){
   try { localStorage.setItem('sacco.theme', theme); } catch(e){}
 }
 
-/* ============================================================
-   PASSWORD
-   ============================================================ */
+/* ============ PASSWORD ============ */
 function updatePasswordStrength(){
   const pw = document.getElementById('newPassword')?.value || '';
   const fill = document.getElementById('pwStrengthFill');
@@ -2259,10 +2205,8 @@ async function changePassword(){
   }
 }
 
-/* ============================================================
-   CONFIRM MODAL
-   ============================================================ */
-let confirmCb = null;
+/* ============ CONFIRM MODAL ============ */
+window.__confirmCb = null;
 function showConfirmModal(title, message, type, cb){
   const overlay = document.getElementById('confirmModal');
   if (!overlay) { if (confirm(message)) cb(); return; }
@@ -2274,18 +2218,16 @@ function showConfirmModal(title, message, type, cb){
     type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
   const ok = document.getElementById('confirmOk');
   ok.className = 'btn btn--primary ' + (type === 'danger' ? 'btn--danger' : type === 'success' ? 'btn--success' : 'btn--warning');
-  confirmCb = cb;
+  window.__confirmCb = cb;
   overlay.classList.add('active');
 }
 function closeConfirmModal(){
   const el = document.getElementById('confirmModal');
   if (el) el.classList.remove('active');
-  confirmCb = null;
+  window.__confirmCb = null;
 }
 
-/* ============================================================
-   LOGOUT
-   ============================================================ */
+/* ============ LOGOUT ============ */
 function showLogoutModal(){
   showConfirmModal(t('logoutTitle'), t('logoutText'), 'danger', async () => {
     try { sessionStorage.clear(); } catch(e){}
@@ -2294,9 +2236,7 @@ function showLogoutModal(){
   });
 }
 
-/* ============================================================
-   DANGER ZONE ACTIONS
-   ============================================================ */
+/* ============ DANGER ZONE ============ */
 async function resetAllSettings(){
   if (!isAdmin) return;
   showConfirmModal(t('confirmResetAllTitle'), t('confirmResetAllMsg'), 'warning', async () => {
@@ -2330,18 +2270,14 @@ async function deleteAllTransactions(){
     const overlay = document.getElementById('loader');
     if (overlay) overlay.classList.remove('hide');
     try {
-      const types = ['savings','loan','repayment','profit_income','profit_withdrawal','withdrawal','penalty',
-        'transfer_out','transfer_in','leaving_withdrawal','individual_withdrawal','service_withdrawal','year_close'];
-      let total = 0;
       const snap = await getDocs(collection(db, 'transactions'));
-      for (const type of types) {
-        const refs = snap.docs.filter(d => String(d.data().type || '').toLowerCase() === type).map(d => d.ref);
-        for (let i = 0; i < refs.length; i += 500) {
-          const b = writeBatch(db);
-          refs.slice(i, i + 500).forEach(r => b.delete(r));
-          await b.commit();
-          total += Math.min(500, refs.length - i);
-        }
+      const refs = snap.docs.map(d => d.ref);
+      let total = 0;
+      for (let i = 0; i < refs.length; i += 500) {
+        const b = writeBatch(db);
+        refs.slice(i, i + 500).forEach(r => b.delete(r));
+        await b.commit();
+        total += Math.min(500, refs.length - i);
       }
       await logAudit('deleted', 'transactions', 'ALL', { count: total }, `All transactions deleted (${total})`);
       toast(`${t('dataDeleted')} (${total})`, 'success');
@@ -2350,9 +2286,7 @@ async function deleteAllTransactions(){
   });
 }
 
-/* ============================================================
-   EXPORT / IMPORT
-   ============================================================ */
+/* ============ EXPORT / IMPORT ============ */
 async function exportAllData(){
   if (!isAdmin) return;
   const overlay = document.getElementById('loader');
@@ -2564,9 +2498,7 @@ async function handleImportFullBackup(e){
   e.target.value = '';
 }
 
-/* ============================================================
-   AUDIT LOG
-   ============================================================ */
+/* ============ AUDIT LOG ============ */
 async function logAudit(action, collectionName, documentId, changes, details){
   try {
     if (!currentSettings.enableAuditLog) return;
@@ -2580,9 +2512,7 @@ async function logAudit(action, collectionName, documentId, changes, details){
   } catch (e) { console.error('Audit log error:', e); }
 }
 
-/* ============================================================
-   LOAD SETTINGS
-   ============================================================ */
+/* ============ LOAD SETTINGS ============ */
 async function loadSettings(){
   const overlay = document.getElementById('loader');
   if (overlay) overlay.classList.remove('hide');
@@ -2610,9 +2540,7 @@ async function loadSettings(){
   } finally { if (overlay) overlay.classList.add('hide'); }
 }
 
-/* ============================================================
-   BOOT
-   ============================================================ */
+/* ============ BOOT ============ */
 (async function boot(){
   let saved = null;
   try { saved = localStorage.getItem(LANG_KEY); } catch(e){}
@@ -2675,10 +2603,9 @@ async function loadSettings(){
 </div>
 
 <script>
-// confirm modal wiring
 document.getElementById('confirmCancel')?.addEventListener('click', () => {
-  const el = document.getElementById('confirmModal');
-  if (el) el.classList.remove('active');
+  document.getElementById('confirmModal')?.classList.remove('active');
+  window.__confirmCb = null;
 });
 document.getElementById('confirmOk')?.addEventListener('click', () => {
   const el = document.getElementById('confirmModal');
@@ -2690,10 +2617,8 @@ document.getElementById('confirmOk')?.addEventListener('click', () => {
 document.getElementById('confirmModal')?.addEventListener('click', function(e){
   if (e.target === this) this.classList.remove('active');
 });
-// floating bar
 document.getElementById('saveAllFloatingBtn')?.addEventListener('click', () => {
-  const btn = document.getElementById('saveAllBtn');
-  if (btn) btn.click();
+  document.getElementById('saveAllBtn')?.click();
 });
 document.getElementById('discardAllBtn')?.addEventListener('click', () => {
   if (window.__discardForm) window.__discardForm();
